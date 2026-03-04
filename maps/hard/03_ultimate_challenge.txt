@@ -1,0 +1,98 @@
+# Hard Level 3: THE ULTIMATE CHALLENGE - All tricks combined
+nb_drones: 15
+
+start_hub: start 0 0 [color=green max_drones=15]
+
+# Layer 1: Initial distribution nightmare
+hub: dist_gate1 1 0 [color=orange max_drones=1]
+hub: dist_gate2 1 1 [color=orange max_drones=1]
+hub: dist_gate3 1 -1 [color=orange max_drones=1]
+
+# Layer 2: Dead end maze with loops
+hub: maze_trap1 2 2 [color=red]
+hub: maze_trap2 3 2 [color=red]
+hub: maze_loop1 2 1 [zone=restricted color=purple]
+hub: maze_loop2 3 1 [zone=restricted color=purple]
+hub: maze_loop3 4 1 [zone=restricted color=purple]
+hub: maze_loop4 4 2 [zone=restricted color=purple]
+hub: maze_correct 2 0 [color=blue]
+
+# Layer 3: Capacity nightmare section
+hub: bottleneck1 3 0 [color=yellow max_drones=2]
+hub: bottleneck2 4 0 [color=yellow max_drones=1]
+hub: overflow1 3 -1 [zone=restricted color=orange max_drones=3]
+hub: overflow2 4 -1 [zone=restricted color=orange max_drones=3]
+
+# Layer 4: Priority puzzle with traps
+hub: priority_hub 5 0 [zone=priority color=cyan max_drones=4]
+hub: priority_trap1 5 1 [zone=priority color=cyan]
+hub: priority_trap2 6 1 [zone=priority color=cyan]
+hub: priority_dead_end 7 1 [color=red]
+hub: priority_correct 6 0 [zone=priority color=cyan max_drones=3]
+
+# Layer 5: Multi-path convergence hell
+hub: conv_restricted1 7 0 [zone=restricted color=brown max_drones=2]
+hub: conv_restricted2 8 0 [zone=restricted color=brown max_drones=2]
+hub: conv_normal1 7 -1 [color=blue max_drones=3]
+hub: conv_normal2 8 -1 [color=blue max_drones=3]
+hub: conv_priority1 7 1 [zone=priority color=lime max_drones=2]
+hub: conv_priority2 8 1 [zone=priority color=lime max_drones=2]
+
+# Layer 6: Final gauntlet
+hub: final_merge 9 0 [color=magenta max_drones=8]
+hub: final_gate1 10 0 [color=orange max_drones=3]
+hub: final_gate2 11 0 [color=orange max_drones=2]
+hub: final_gate3 12 0 [color=orange max_drones=1]
+
+end_hub: goal 13 0 [color=gold max_drones=15]
+
+# Layer 1 connections
+connection: start-dist_gate1
+connection: start-dist_gate2
+connection: start-dist_gate3
+
+# Layer 2 connections - maze with traps
+connection: dist_gate1-maze_correct
+connection: dist_gate2-maze_trap1
+connection: dist_gate3-maze_loop1
+connection: maze_trap1-maze_trap2
+connection: maze_loop1-maze_loop2
+connection: maze_loop2-maze_loop3
+connection: maze_loop3-maze_loop4
+connection: maze_loop4-maze_loop1
+connection: maze_loop2-maze_correct
+
+# Layer 3 connections - capacity nightmare
+connection: maze_correct-bottleneck1
+connection: bottleneck1-bottleneck2
+connection: bottleneck1-overflow1
+connection: overflow1-overflow2
+connection: overflow2-bottleneck2
+
+# Layer 4 connections - priority puzzle
+connection: bottleneck2-priority_hub
+connection: priority_hub-priority_trap1
+connection: priority_hub-priority_correct
+connection: priority_trap1-priority_trap2
+connection: priority_trap2-priority_dead_end
+connection: priority_correct-conv_restricted1
+connection: priority_correct-conv_normal1
+connection: priority_correct-conv_priority1
+
+# Layer 5 connections - multi-path convergence
+connection: conv_restricted1-conv_restricted2
+connection: conv_normal1-conv_normal2
+connection: conv_priority1-conv_priority2
+connection: conv_restricted2-final_merge
+connection: conv_normal2-final_merge
+connection: conv_priority2-final_merge
+
+# Layer 6 connections - final gauntlet
+connection: final_merge-final_gate1
+connection: final_gate1-final_gate2
+connection: final_gate2-final_gate3
+connection: final_gate3-goal
+
+# Emergency bypass (very expensive)
+connection: overflow2-conv_normal1
+connection: priority_hub-conv_priority1

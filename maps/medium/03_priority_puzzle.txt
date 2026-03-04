@@ -1,0 +1,20 @@
+# Medium Level 3: Priority zones create optimal path challenges
+nb_drones: 4
+
+start_hub: start 0 0 [color=green max_drones=4]
+hub: slow_path1 1 -1 [zone=restricted color=red]
+hub: slow_path2 2 -1 [zone=restricted color=red]
+hub: slow_path3 3 -1 [zone=restricted color=red]
+hub: fast_junction 1 0 [zone=priority color=blue max_drones=2]
+hub: fast_path 2 0 [zone=priority color=blue]
+hub: merge_point 3 0 [color=yellow max_drones=3]
+end_hub: goal 4 0 [color=green max_drones=4]
+
+connection: start-slow_path1
+connection: start-fast_junction
+connection: slow_path1-slow_path2
+connection: slow_path2-slow_path3
+connection: slow_path3-merge_point
+connection: fast_junction-fast_path
+connection: fast_path-merge_point
+connection: merge_point-goal

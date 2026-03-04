@@ -1,0 +1,50 @@
+# Hard Level 1: Complex maze with multiple dead ends and loops
+nb_drones: 8
+
+start_hub: start 0 0 [color=green max_drones=8]
+hub: maze_a1 1 0 [color=blue]
+hub: maze_a2 2 0 [color=blue]
+hub: maze_b1 1 1 [color=blue]
+hub: maze_b2 2 1 [color=blue]
+hub: maze_c1 1 2 [color=blue]
+hub: maze_c2 2 2 [color=blue]
+hub: dead_end1 0 1 [color=red]
+hub: dead_end2 0 2 [color=red]
+hub: dead_end3 3 1 [color=red]
+hub: trap_loop1 3 0 [zone=restricted color=orange]
+hub: trap_loop2 3 2 [zone=restricted color=orange]
+hub: bottleneck 4 1 [color=yellow max_drones=2]
+hub: final_stretch1 5 0 [zone=priority color=cyan]
+hub: final_stretch2 5 1 [zone=priority color=cyan]
+hub: final_stretch3 5 2 [zone=priority color=cyan]
+end_hub: goal 6 1 [color=green max_drones=8]
+
+# Main path connections
+connection: start-maze_a1
+connection: maze_a1-maze_a2
+connection: maze_a1-maze_b1
+connection: maze_b1-maze_b2
+connection: maze_b2-maze_c2
+connection: maze_c2-bottleneck
+
+# Dead end traps
+connection: start-dead_end1
+connection: dead_end1-dead_end2
+connection: maze_a2-dead_end3
+
+# Trap loops
+connection: maze_a2-trap_loop1
+connection: trap_loop1-trap_loop2
+connection: trap_loop2-maze_c2
+
+# Alternative paths
+connection: maze_b1-maze_c1
+connection: maze_c1-maze_c2
+
+# Final stretch
+connection: bottleneck-final_stretch1
+connection: bottleneck-final_stretch2
+connection: bottleneck-final_stretch3
+connection: final_stretch1-goal
+connection: final_stretch2-goal
+connection: final_stretch3-goal
