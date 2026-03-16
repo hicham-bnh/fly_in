@@ -5,11 +5,20 @@ from enum import Enum
 
 class Parsing:
     def __init__(self):
-        self.data: str = None
+        self.data = []
+        self.all_line = []
 
     def read_file(self, file: str) -> None:
         with open(file, "r") as fd:
-            self.data = fd.read()
+            self.data = fd.readlines()
+
+    def check_line(self) -> None:
+        for line in self.data:
+            if line == "":
+                continue
+            if line.startswith("#"):
+                continue
+            self.all_line.append(line)
 
 
 class ZoneType(Enum):
