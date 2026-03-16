@@ -22,7 +22,7 @@ help:
 
 install:
 	$(PIP) install --update pip setuptools wheel || true
-	$(PIP) install -r requirements.xt || echo "Warning: some packages from requirements.txt failed to install"
+	$(PIP) install -r requirements.txt || echo "Warning: some packages from requirements.txt failed to install"
 
 run:
 	$(PYTHON) $(MAIN_SCRIPT) $(FILE)
