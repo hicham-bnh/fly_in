@@ -1,29 +1,37 @@
-from typing import List
+from typing import List, Dict, Optional
+from dataclasses import dataclass
+from enum import Enum
 
 
 class Parsing:
-    def __init__(self) -> None:
-        self.drone: int = 0
-        self.path: List = []
-        self.connection: List = []
+    def __init__(self):
+        self.data: str = None
 
-    def open_file(self, file):
-        try:
-            with open(file, "r") as fd:
-                data = fd.read()
-            result = data.split('\n')
-            for line in result:
-                if 'nb_drones' in line:
-                    res = line.split(':')
-                    self.drone = int(res[1])
-                if '[' in line:
-                    res = line.split(':')
-                    self.path.append(res[1])
-                if "connection" in line:
-                    res = line.split(':')
-                    self.connection.append(res[1])
-        except Exception as e:
-            print(e)
-        print(self.drone)
-        print(self.path)
-        print(self.connection)
+    def read_file(self, file: str) -> None:
+        with open(file, "r") as fd:
+            self.data = fd.read()
+
+
+class ZoneType(Enum):
+    NORMAL = "normal"
+    BLOCKED = "blocked"
+    RESTRICTED = "restricted"
+    PRIORITY = "priority"
+
+
+@dataclass
+class Zone:
+    name: str
+    x: int
+    y: int
+    zone_type: str = ZoneType.NORMAL
+    color: Optional[str] = None
+    is_start: bool = False
+    is_end: bool = False
+
+
+@dataclass
+class Connection:
+    zone1: str
+    zone2: str
+    max_capacity: int = 1

@@ -15,8 +15,8 @@ camera = rl.Camera3D(
 rl.disable_cursor()
 
 suny = rl.load_texture("/home/mobenhab/Downloads/Screenshot_from_2026-03-16_13-45-58-removebg-preview.png")
-texture_michel = rl.load_texture("/home/mobenhab/Downloads/test.png")
-drone = rl.load_texture("/home/mobenhab/Downloads/IMG_20250827_194943-removebg-preview.png")
+texture_michel = rl.load_texture("png/mur-removebg-preview.png")
+drone = rl.load_texture("png/simple-model-aeroplane-paper-crafts-original-removebg-preview.png")
  
 def draw_michel_tournant(x, z, texture):
     pos = rl.Vector3(float(x), 1.5, float(z))
