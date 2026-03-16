@@ -1,6 +1,6 @@
 PYTHON := python3
 PIP := pip
-MAIN_SCRIPT := fly_in.py
+MAIN_SCRIPT := main.py
 PROJECT_NAME := fly_in
 VENV := .VENV
 REQUIREMENTS := requirements
