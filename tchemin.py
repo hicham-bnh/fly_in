@@ -13,7 +13,7 @@ class DroneSimulation:
 
         # 2. Chargement des données (Ton module Parsing)
         self.parser = Parsing()
-        self.parser.read_file("maps/challenger/01_the_impossible_dream.txt")
+        self.parser.read_file(sys.argv[len(sys.argv) - 1])
         self.parser.check_line()
         self.parser.parse()
         # 3. Création de l'environnement
