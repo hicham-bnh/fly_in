@@ -1,0 +1,16 @@
+Metadata-Version: 2.4
+Name: sswg
+Version: 4.3.0
+Summary: A Simple Static Website Generator that converts a markdown inspired markup language into web pages.
+Author-email: Petter Amland <pokepetter@gmail.com>
+License: MIT
+Project-URL: Homepage, https://github.com/pokepetter/sswg
+Keywords: website,generator
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Dynamic: license-file
+
+# sswg - simple_static_website_generator
+
+https://pokepetter.github.io/sswg/

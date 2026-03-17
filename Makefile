@@ -1,6 +1,6 @@
-PYTHON := python3
+PYTHON := python3.12
 PIP := pip
-MAIN_SCRIPT := main.py
+MAIN_SCRIPT := test.py
 PROJECT_NAME := fly_in
 VENV := .VENV
 REQUIREMENTS := requirements

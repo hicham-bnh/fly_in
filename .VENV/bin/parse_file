@@ -1,0 +1,6 @@
+#!/sgoinfre/mobenhab/fly_in/.VENV/bin/python
+import sys
+from panda3d_tools import parse_file
+if __name__ == '__main__':
+    sys.argv[0] = sys.argv[0].removesuffix('.exe')
+    sys.exit(parse_file())

@@ -9,5 +9,10 @@ if __name__ == "__main__":
         pars.parse()
         pars.check_line()
         pars.parse()
+        print(pars.nb_drones)
+        for i in pars.zones:
+            print(i)
+        for i in pars.connections:
+            print(i)
     except Exception as e:
         print(e)
