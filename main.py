@@ -1,11 +1,10 @@
 from parsing import Parsing
-
+import sys
 
 if __name__ == "__main__":
     try:
-        file = input("enter the path for the map : ")
         pars = Parsing()
-        pars.read_file(file)
+        pars.read_file(sys.argv[1])
         pars.parse()
         pars.check_line()
         pars.parse()
@@ -14,5 +13,7 @@ if __name__ == "__main__":
             print(i)
         for i in pars.connections:
             print(i)
+        print()
+        print(pars.pos)
     except Exception as e:
         print(e)

@@ -11,6 +11,7 @@ class Parsing:
         self.nb_drones: int = 0
         self.zones: List = []
         self.connections: List = []
+        self.pos = []
 
     def read_file(self, file: str) -> None:
         with open(file, "r") as fd:
@@ -35,6 +36,7 @@ class Parsing:
         x = int(parts[2])
         y = int(parts[3])
         color = parts[4]
+        self.pos.append((x, y, color))
         self.zones.append((name, x, y, color))
 
     def parse(self) -> None:

@@ -35,7 +35,7 @@ class DroneSim:
         DirectionalLight(y=10, rotation=(45, 45, 0))
 
         # 2. Sol de sécurité (très large et coloré pour être sûr de le voir)
-        self.ground = Entity(model='plane', scale=100, texture='grid', color=color.dark_gray, collider='box')
+        self.ground = Entity(model='plane', scale=50, texture='grid', color=color.dark_gray, collider='box')
 
         # 3. Tes points (on s'assure qu'ils existent)
         self.waypoints = {}
@@ -50,7 +50,7 @@ class DroneSim:
             self.draw_edge(start_node, end_node)
         
         # 5. JOUEUR : On le place en hauteur pour qu'il voit tout d'en haut
-        self.player = FirstPersonController(position=(0, 10, -20), speed=10)
+        self.player = FirstPersonController(position=(0, 0, -20), speed=10)
         self.player.look_at(self.waypoints['start']) # Force à regarder le début
 
     # ... (garde ta fonction draw_edge)
