@@ -23,6 +23,7 @@ class Waypoint(Entity):
             position=(x * 5, 0.5, z * 5),
             scale=1
         )
+        
         self.label = Text(text=name, parent=self, y=1.5, billboard=True, scale=10)
 
 class DroneSim:
