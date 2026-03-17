@@ -6,11 +6,11 @@ from enum import Enum
 class Parsing:
 
     def __init__(self):
-        self.data = []
-        self.all_line = []
+        self.data: List = []
+        self.all_line: List = []
         self.nb_drones: int = 0
-        self.zones = []
-        self.connections = []
+        self.zones: List = []
+        self.connections: List = []
 
     def read_file(self, file: str) -> None:
         with open(file, "r") as fd:
@@ -19,13 +19,10 @@ class Parsing:
     def check_line(self) -> None:
         for line in self.data:
             line = line.strip()
-
             if line == "":
                 continue
-
             if line.startswith("#"):
                 continue
-
             self.all_line.append(line)
 
     def parse_nb_drones(self, line: str) -> None:
@@ -33,31 +30,23 @@ class Parsing:
         self.nb_drones = int(res[1].strip())
 
     def parse_zone(self, line: str) -> None:
-        left = line.split("[")[0]
-
-        parts = left.split()
-
+        parts = line.split()
         name = parts[1]
         x = int(parts[2])
         y = int(parts[3])
-
-        self.zones.append((name, x, y))
+        color = parts[4]
+        self.zones.append((name, x, y, color))
 
     def parse(self) -> None:
         for line in self.all_line:
-
             if line.startswith("nb_drones:"):
                 self.parse_nb_drones(line)
-
             elif line.startswith("start_hub:"):
                 self.parse_zone(line)
-
             elif line.startswith("end_hub:"):
                 self.parse_zone(line)
-
             elif line.startswith("hub:"):
                 self.parse_zone(line)
-
             elif line.startswith("connection:"):
                 self.parse_connection(line)
 
@@ -88,7 +77,7 @@ class Zone:
     name: str
     x: int
     y: int
-    zone_type: str = ZoneType.NORMAL
+    zone_type: ZoneType = ZoneType.NORMAL
     color: Optional[str] = None
     is_start: bool = False
     is_end: bool = False
