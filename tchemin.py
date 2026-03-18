@@ -4,24 +4,45 @@ from ursina.shaders import lit_with_shadows_shader
 from parsing import Parsing
 import random
 
+class DroneDecor(Entity):
+    def __init__(self, name ,position=(0,2,0)):
+        super().__init__(
+            model='cube',
+            color=color.black,
+            scale=Vec3(1, 0.2, 1),
+            position=position
+        )
+        self.name = name
+        Entity(parent=self, model='cube', color=color.dark_gray, scale=Vec3(1.2, 0.1, 0.1), rotation_y=45)
+        Entity(parent=self, model='cube', color=color.dark_gray, scale=Vec3(1.2, 0.1, 0.1), rotation_y=-45)
+        self.props = []
+        for p in [(-.5,.1,-.5), (.5,.1,-.5), (-.5,.1,.5), (.5,.1,.5)]:
+            prop = Entity(parent=self, model='cube', color=color.red, scale=Vec3(.4,.02,.05), position=p)
+            self.props.append(prop)
+        self.start_y = self.y
+        self.t = 0
+
+    def update(self):
+        for p in self.props:
+            p.rotation_y += 1000 * time.dt
+        self.t += time.dt
+        self.y = self.start_y + math.sin(self.t * 2) * 0.2
+        self.rotation_z = math.cos(self.t) * 2
+        self.rotation_x = math.sin(self.t * 1.5) * 2
+
 class DroneSimulation:
     def __init__(self):
         # 1. Initialisation du moteur
         self.app = Ursina(title="fly-in")
         random.seed(0)
         Entity.default_shader = lit_with_shadows_shader
-
-        # 2. Chargement des données (Ton module Parsing)
         self.parser = Parsing()
-        
         self.parser.read_file(sys.argv[len(sys.argv) - 1])
         self.parser.check_line()
         self.parser.parse()
-        # 3. Création de l'environnement
+        nb_drone = self.parser.nb_drones
         self.create_world()
         self.generate_map(self.parser.pos)
-        
-        # 4. Configuration du Joueur / Drone
         self.player = FirstPersonController(
             model='cube', 
             z=-10, 
@@ -31,12 +52,12 @@ class DroneSimulation:
             collider='box'
         )
         self.player.collider = BoxCollider(self.player, Vec3(0,1,0), Vec3(1,2,1))
-        
-        # Caméra de debug
         self.editor_camera = EditorCamera(enabled=False, ignore_paused=True)
+        for i in range(nb_drone):
+            self.mon_drone_visuel = DroneDecor(f"drone_{i+1}", position=(0, 3, 0))
+            print(self.mon_drone_visuel.name)
 
     def create_world(self):
-        """Crée le sol, la lumière et le ciel."""
         self.ground = Entity(
             model='plane', 
             collider='box', 
@@ -49,17 +70,13 @@ class DroneSimulation:
         Sky()
 
     def generate_map(self, positions):
-        """Génère les obstacles à partir des positions parsées."""
-        # On peut créer un parent vide pour regrouper les obstacles
         self.obstacles_parent = Entity()
-        
         for a, b, col_data in positions:
-
             clean_color = col_data
             if isinstance(col_data, str):
                 clean_color = col_data.replace('[color=', '').replace(']', '')
             Entity(
-                parent=self.obstacles_parent, # Fix: self.obstacles_parent au lieu de self
+                parent=self.obstacles_parent,
                 model='cube',
                 origin_y=-0.5,
                 scale=Vec3(0.5, 0.5, 0.5),
@@ -85,6 +102,9 @@ class DroneSimulation:
 
     def run(self):
         self.app.run()
+
+
+
 
 if __name__ == '__main__':
     sim = DroneSimulation()
