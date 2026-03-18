@@ -40,7 +40,7 @@ class DroneSimulation:
         self.ground = Entity(
             model='plane', 
             collider='box', 
-            scale=100, 
+            scale=Vec3(100), 
             texture='grass', 
             texture_scale=(4,4)
         )
@@ -62,7 +62,7 @@ class DroneSimulation:
                 parent=self.obstacles_parent, # Fix: self.obstacles_parent au lieu de self
                 model='cube',
                 origin_y=-0.5,
-                scale=(0.5, 0.5, 0.5),
+                scale=Vec3(0.5, 0.5, 0.5),
                 texture='brick',
                 x=a * 2.0,
                 z=b * 2.0,
