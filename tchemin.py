@@ -32,7 +32,6 @@ class DroneDecor(Entity):
 
 class DroneSimulation:
     def __init__(self):
-        # 1. Initialisation du moteur
         self.app = Ursina(title="fly-in")
         random.seed(0)
         Entity.default_shader = lit_with_shadows_shader
@@ -41,8 +40,13 @@ class DroneSimulation:
         self.parser.check_line()
         self.parser.parse()
         nb_drone = self.parser.nb_drones
+        self.hub_positions = {
+        zone[0]: Vec3(zone[1] * 2.5, 0.1, zone[2] * 2.5) 
+        for zone in self.parser.zones
+        }
         self.create_world()
         self.generate_map(self.parser.pos)
+        self.generate_network_lines()
         self.player = FirstPersonController(
             model='cube', 
             z=-10, 
@@ -55,13 +59,26 @@ class DroneSimulation:
         self.editor_camera = EditorCamera(enabled=False, ignore_paused=True)
         for i in range(nb_drone):
             self.mon_drone_visuel = DroneDecor(f"drone_{i+1}", position=(0, 3, 0))
-            print(self.mon_drone_visuel.name)
+
+    def generate_network_lines(self):
+        all_vertices = []
+        
+        for zone1, zone2, capacity in self.parser.connections:
+            if zone1 in self.hub_positions and zone2 in self.hub_positions:
+                all_vertices.append(self.hub_positions[zone1])
+                all_vertices.append(self.hub_positions[zone2])
+        if all_vertices:
+            self.network = Entity(
+                model=Mesh(vertices=all_vertices, mode='line', thickness=3),
+                color=color.white,
+                z=-0.01
+            )
 
     def create_world(self):
         self.ground = Entity(
             model='plane', 
             collider='box', 
-            scale=Vec3(100), 
+            scale=Vec3(150), 
             texture='grass', 
             texture_scale=(4,4)
         )
@@ -81,8 +98,8 @@ class DroneSimulation:
                 origin_y=-0.5,
                 scale=Vec3(0.5, 0.5, 0.5),
                 texture='brick',
-                x=a * 2.0,
-                z=b * 2.0,
+                x=a * 2.5,
+                z=b * 2.5,
                 collider='box',
                 color = getattr(color, clean_color) if hasattr(color, clean_color) else color.white
             )
