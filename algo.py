@@ -17,10 +17,13 @@ class Djikstra:
         self.end = self.parser.end
         self.path = self.parser.zones
 
+    def get_path(self):
+        print(self.parser.connections)
+
 if __name__ == "__main__":
     try:
         test = Djikstra()
         test.parse_file(sys.argv[len(sys.argv) - 1])
-        print(test.parser.zones)
+        test.get_path()
     except Exception as e:
         print(e)
