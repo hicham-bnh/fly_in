@@ -63,7 +63,7 @@ class DroneSimulation:
     def generate_network_lines(self):
         all_vertices = []
         
-        for zone1, zone2, capacity in self.parser.connections:
+        for zone1, zone2 in self.parser.connections:
             if zone1 in self.hub_positions and zone2 in self.hub_positions:
                 all_vertices.append(self.hub_positions[zone1])
                 all_vertices.append(self.hub_positions[zone2])
@@ -89,6 +89,12 @@ class DroneSimulation:
     def generate_map(self, positions):
         self.obstacles_parent = Entity()
         for a, b, col_data in positions:
+            if col_data == "purple":
+                col_data = "violet"
+            if col_data == "maroon":
+                col_data = "brown"
+            if col_data == "darkred" or col_data == "crimson":
+                col_data = "brown"
             clean_color = col_data
             if isinstance(col_data, str):
                 clean_color = col_data.replace('[color=', '').replace(']', '')

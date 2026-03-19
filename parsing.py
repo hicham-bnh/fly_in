@@ -48,6 +48,7 @@ class Parsing:
             pars = line.split("[")[1].split("]")[0]
             tags = pars.split()
             zone_pars = None
+            max_drone = None
             for tag in tags:
                 if "=" in tag:
                     key, value = tag.split("=", 1)
