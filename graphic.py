@@ -2,6 +2,7 @@ from ursina import *
 from ursina.prefabs.first_person_controller import FirstPersonController
 from ursina.shaders import lit_with_shadows_shader
 from parsing import Parsing
+from ursina import application, Entity, time
 import random
 
 class DroneDecor(Entity):
@@ -49,7 +50,7 @@ class DroneSimulation:
         self.generate_network_lines()
         self.player = FirstPersonController(
             model='cube', 
-            z=-10, 
+            z=-10,
             color=color.orange, 
             origin_y=-.5, 
             speed=8, 
@@ -111,15 +112,6 @@ class DroneSimulation:
             )
 
     def input(self, key):
-        """Gestion des touches (Pause / Tab)."""
-        if key == 'tab':
-            self.editor_camera.enabled = not self.editor_camera.enabled
-            self.player.visible_self = self.editor_camera.enabled
-            self.player.cursor.enabled = not self.editor_camera.enabled
-            mouse.locked = not self.editor_camera.enabled
-            self.editor_camera.position = self.player.position
-            application.paused = self.editor_camera.enabled
-        
         if key == 'escape':
             application.quit()
 
