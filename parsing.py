@@ -12,8 +12,8 @@ class Parsing:
         self.zones: List[Any] = []
         self.connections: List[tuple[str, str]] = []
         self.pos: List[tuple[int, int, str]] = []
-        self.start: List[tuple[int, int]] = []
-        self.end: List[tuple[int, int]] = []
+        self.start: List[tuple[str, int, int]] = []
+        self.end: List[tuple[str, int, int]] = []
 
     def read_file(self, file: str) -> None:
         with open(file, "r") as fd:
@@ -41,9 +41,9 @@ class Parsing:
         y = int(parts[3])
         color = "white"
         if name == "start":
-            self.start.append((x, y))
+            self.start.append((name, x, y))
         if name == "goal":
-            self.end.append((x, y))
+            self.end.append((name, x, y))
         if "[" in line:
             pars = line.split("[")[1].split("]")[0]
             tags = pars.split()
