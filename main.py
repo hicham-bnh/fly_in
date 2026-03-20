@@ -1,6 +1,7 @@
 from parsing import Parsing
 import sys
 
+
 if __name__ == "__main__":
     try:
         pars = Parsing()

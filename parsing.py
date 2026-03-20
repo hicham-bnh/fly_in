@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional, Any
+from typing import List, Optional
 from dataclasses import dataclass
 from enum import Enum
 
@@ -11,9 +11,9 @@ class Parsing:
         self.nb_drones: int = 0
         self.zones: List = []
         self.connections: List = []
-        self.pos = []
-        self.start = []
-        self.end = []
+        self.pos: List = []
+        self.start: List = []
+        self.end: List = []
 
     def read_file(self, file: str) -> None:
         with open(file, "r") as fd:

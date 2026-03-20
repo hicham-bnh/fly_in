@@ -1,6 +1,6 @@
 from parsing import Parsing
 import sys
-from parsing import Parsing
+
 
 class Djikstra:
     def __init__(self) -> None:
@@ -19,6 +19,7 @@ class Djikstra:
 
     def get_path(self):
         print(self.parser.connections)
+
 
 if __name__ == "__main__":
     try:
