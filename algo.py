@@ -17,22 +17,24 @@ class Djikstra:
         self.parser.parse()
         self.start = self.parser.start
         self.end = self.parser.end
-        self.path = self.parser.zones
         self.connection = self.parser.connections
 
     def get_path(self) -> None:
-        visite = [self.start]
+        visite = []
         parent = []
         queue = deque(self.start)
         while queue:
             current = queue.popleft()
+            visite.append(current)
             if current == self.end:
                 break
             direction = deque()
             for i in self.parser.connections:
-                if i[0] == current[0]:
-                    direction.append(i[1])
-            
+                if i[0]['name'] == current[0]:
+                    if i[0].get('zone') != "blocked":
+                        direction.append(i[1])
+                directions =sorted(direction, key=lambda x: x['zone'] == 'priority')
+        print(direction)
             
             
 

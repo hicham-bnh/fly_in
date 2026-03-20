@@ -1,6 +1,7 @@
-from typing import List, Optional, Any
+from typing import List, Optional, Dict
 from dataclasses import dataclass
 from enum import Enum
+import sys
 
 
 class Parsing:
@@ -9,8 +10,8 @@ class Parsing:
         self.data: List[str] = []
         self.all_line: List[str] = []
         self.nb_drones: int = 0
-        self.zones: List[Any] = []
-        self.connections: List[tuple[str, str]] = []
+        self.zones: List[dict] = []
+        self.connections: List[tuple[Dict, Dict]] = []
         self.pos: List[tuple[int, int, str]] = []
         self.start: List[tuple[str, int, int]] = []
         self.end: List[tuple[str, int, int]] = []
@@ -60,13 +61,42 @@ class Parsing:
                         max_drone = int(value)
         self.pos.append((x, y, color))
         if zone_pars is not None and max_drone is not None:
-            self.zones.append((name, x, y, color, zone_pars, max_drone))
+            zone = {
+                "name": name,
+                "x": x,
+                "y": y,
+                "color": color,
+                "zone": zone_pars,
+                "capacity": max_drone
+            }
+            self.zones.append(zone)
         elif zone_pars is None and max_drone is not None:
-            self.zones.append((name, x, y, color, max_drone))
+            zone = {
+                "name": name,
+                "x": x,
+                "y": y,
+                "color": color,
+                "capacity": max_drone
+            }
+            self.zones.append(zone)
         elif zone_pars is not None and max_drone is None:
-            self.zones.append((name, x, y, color, zone_pars))
+            zone = {
+                "name": name,
+                "x": x,
+                "y": y,
+                "color": color,
+                "zone": zone_pars,
+            }
+            self.zones.append(zone)
         else:
-            self.zones.append((name, x, y, color))
+            zone = {
+                "name": name,
+                "x": x,
+                "y": y,
+                "color": color,
+
+            }
+            self.zones.append(zone)
 
     def parse(self) -> None:
         for line in self.all_line:
@@ -85,7 +115,12 @@ class Parsing:
         left = line.split("[")[0]
         part = left.split()[1]
         zone1, zone2 = part.split("-")
-        self.connections.append((zone1, zone2))
+        for i in self.zones:
+            if i['name'] == zone1:
+                zone_a = i
+            if i['name'] == zone2:
+                zone_b = i
+        self.connections.append((zone_a, zone_b))
 
 
 class ZoneType(Enum):
