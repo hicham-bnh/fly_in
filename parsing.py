@@ -1,19 +1,19 @@
-from typing import List, Optional
+from typing import List, Optional, Any
 from dataclasses import dataclass
 from enum import Enum
 
 
 class Parsing:
 
-    def __init__(self):
-        self.data: List = []
-        self.all_line: List = []
+    def __init__(self) -> None:
+        self.data: List[str] = []
+        self.all_line: List[str] = []
         self.nb_drones: int = 0
-        self.zones: List = []
-        self.connections: List = []
-        self.pos: List = []
-        self.start: List = []
-        self.end: List = []
+        self.zones: List[Any] = []
+        self.connections: List[tuple[str, str]] = []
+        self.pos: List[tuple[int, int, str]] = []
+        self.start: List[tuple[int, int]] = []
+        self.end: List[tuple[int, int]] = []
 
     def read_file(self, file: str) -> None:
         with open(file, "r") as fd:

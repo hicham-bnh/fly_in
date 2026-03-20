@@ -18,7 +18,7 @@ class Djikstra:
         self.path = self.parser.zones
 
     def get_path(self):
-        print(self.parser.connections)
+        ...
 
 
 if __name__ == "__main__":
