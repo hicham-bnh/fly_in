@@ -1,15 +1,16 @@
 from parsing import Parsing
 import sys
+from typing import List, Dict
 
 
 class Djikstra:
     def __init__(self) -> None:
         self.parser = Parsing()
-        self.start = None
-        self.end = None
-        self.path = None
+        self.start: List[tuple[int, int]] = []
+        self.end: List[tuple[int, int]] = []
+        self.path: List[Dict[str, int]] = [{}]
 
-    def parse_file(self, file: str):
+    def parse_file(self, file: str) -> None:
         self.parser.read_file(file)
         self.parser.check_line()
         self.parser.parse()
@@ -17,7 +18,7 @@ class Djikstra:
         self.end = self.parser.end
         self.path = self.parser.zones
 
-    def get_path(self):
+    def get_path(self) -> None:
         ...
 
 
