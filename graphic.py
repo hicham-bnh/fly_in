@@ -8,28 +8,13 @@ import random
 class DroneDecor(Entity):
     def __init__(self, name ,position=(0,2,0)):
         super().__init__(
-            model='cube',
+            model='sphere',
             color=color.black,
-            scale=Vec3(1, 0.2, 1),
+            scale=Vec3(0.5, 0.5, 0.5),
             position=position
         )
         self.name = name
-        Entity(parent=self, model='cube', color=color.dark_gray, scale=Vec3(1.2, 0.1, 0.1), rotation_y=45)
-        Entity(parent=self, model='cube', color=color.dark_gray, scale=Vec3(1.2, 0.1, 0.1), rotation_y=-45)
-        self.props = []
-        for p in [(-.5,.1,-.5), (.5,.1,-.5), (-.5,.1,.5), (.5,.1,.5)]:
-            prop = Entity(parent=self, model='cube', color=color.red, scale=Vec3(.4,.02,.05), position=p)
-            self.props.append(prop)
         self.start_y = self.y
-        self.t = 0
-
-    def update(self):
-        for p in self.props:
-            p.rotation_y += 1000 * time.dt
-        self.t += time.dt
-        self.y = self.start_y + math.sin(self.t * 2) * 0.2
-        self.rotation_z = math.cos(self.t) * 2
-        self.rotation_x = math.sin(self.t * 1.5) * 2
 
 class DroneSimulation:
     def __init__(self):
@@ -48,13 +33,12 @@ class DroneSimulation:
         self.create_world()
         self.generate_map(self.parser.pos)
         self.generate_network_lines()
-        self.player = FirstPersonController(
-            model='cube', 
-            z=-10,
-            color=color.orange, 
-            origin_y=-.5, 
-            speed=8, 
-            collider='box'
+        self.player = FirstPersonController( 
+            z=-0.1,
+            origin_y=1, 
+            speed=20,
+            gravity = 0,
+            y = 4
         )
         self.player.collider = BoxCollider(self.player, Vec3(0,1,0), Vec3(1,2,1))
         self.editor_camera = EditorCamera(enabled=False, ignore_paused=True)
@@ -63,7 +47,6 @@ class DroneSimulation:
 
     def generate_network_lines(self):
         all_vertices = []
-        
         for zone1, zone2 in self.parser.connections:
             if zone1 in self.hub_positions and zone2 in self.hub_positions:
                 all_vertices.append(self.hub_positions[zone1])
@@ -79,7 +62,7 @@ class DroneSimulation:
         self.ground = Entity(
             model='plane', 
             collider='box', 
-            scale=Vec3(150), 
+            scale=Vec3(110), 
             texture='grass', 
             texture_scale=(4,4)
         )
@@ -111,15 +94,12 @@ class DroneSimulation:
                 color = getattr(color, clean_color) if hasattr(color, clean_color) else color.white
             )
 
-    def input(self, key):
-        if key == 'escape':
-            application.quit()
-
     def run(self):
         self.app.run()
 
-
-
+def input(key):
+    if key == 'escape':
+        quit()
 
 if __name__ == '__main__':
     sim = DroneSimulation()
