@@ -1,7 +1,6 @@
-from ursina import Ursina, color, Vec3, sys, \
-    BoxCollider, EditorCamera, Mesh, DirectionalLight, Sky
-from ursina.prefabs.first_person_controller import FirstPersonController
-from ursina.shaders import lit_with_shadows_shader
+from ursina import Ursina, color, Vec3, sys, BoxCollider, EditorCamera, Mesh, DirectionalLight, Sky # type: ignore
+from ursina.prefabs.first_person_controller import FirstPersonController # type: ignore
+from ursina.shaders import lit_with_shadows_shader # type: ignore
 from parsing import Parsing
 from ursina import Entity, distance, time
 import random

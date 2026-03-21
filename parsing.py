@@ -1,7 +1,6 @@
 from typing import List, Optional, Dict
 from dataclasses import dataclass
 from enum import Enum
-import sys
 
 
 class Parsing:
@@ -10,8 +9,8 @@ class Parsing:
         self.data: List[str] = []
         self.all_line: List[str] = []
         self.nb_drones: int = 0
-        self.drone_path = []
-        self.zones_path = []
+        self.drone_path: List = []
+        self.zones_path: List = []
         self.zones: List[dict] = []
         self.connections: List[tuple[Dict, Dict]] = []
         self.pos: List[tuple[int, int, str]] = []
@@ -49,15 +48,6 @@ class Parsing:
             self.start.append((name, x, y))
         if name == "goal":
             self.end.append((name, x, y))
-
-
-
-
-
-
-
-
-
         if "[" in line:
             pars = line.split("[")[1].split("]")[0]
             tags = pars.split()

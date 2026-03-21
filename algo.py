@@ -1,6 +1,5 @@
 from parsing import Parsing
-import sys
-from typing import List, Dict
+from typing import List, Optional
 from collections import deque
 
 
@@ -9,7 +8,7 @@ class BFS:
         self.parser = Parsing()
         self.start: List[tuple[str, int, int]] = []
         self.end: List[tuple[str, int, int]] = []
-        self.path: List[Dict[str, int]] = [{}]
+        self.path: List[str] = []
 
     def parse_file(self, file: str) -> None:
         self.parser.read_file(file)
@@ -51,14 +50,14 @@ class BFS:
         if end_node not in parent and start_node != end_node:
             print("ERROR")
             return
-        path = []
-        curr = end_node
+        curr: Optional[str] = end_node
+        path: List[str] = []
         while curr is not None:
             path.append(curr)
             curr = parent.get(curr)
         self.path = path[::-1]
-        
-    def get_path_all_drone(self):
+
+    def get_path_all_drone(self) -> List:
         zones = {z['name']: z for z in self.parser.zones}
         all_arrive = 0
         while all_arrive < self.parser.nb_drones:
@@ -71,7 +70,8 @@ class BFS:
                     next_name = self.path[idx + 1]
                     current_zone = zones[current_name]
                     next_zone = zones[next_name]
-                    if next_zone['capacity'] > next_zone['drone'] or next_name == 'goal':
+                    if next_zone['capacity'] > next_zone['drone'] \
+                            or next_name == 'goal':
                         path_list.append(next_name)
                         next_zone['drone'] += 1
                         if current_name != 'start':
