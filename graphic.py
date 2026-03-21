@@ -25,10 +25,6 @@ class DroneSimulation:
         random.seed(0)
         Entity.default_shader = lit_with_shadows_shader
         self.parser = Parsing()
-        self.parser.read_file(sys.argv[len(sys.argv) - 1])
-        self.parser.check_line()
-        self.parser.parse()
-        self.drones = {}
         nb_drone = self.parser.nb_drones
         self.hub_positions = {
             zone[0]: Vec3(zone[1] * 2.5, 0.1, zone[2] * 2.5)
@@ -52,10 +48,6 @@ class DroneSimulation:
             self.mon_drone_visuel = DroneDecor(
                 f"drone_{i+1}", position=(0, 3, 0)
             )
-            drone = {
-                f"drone_0{i+1}": None
-            }
-            self.drones.update(drone)
 
     def generate_network_lines(self):
         all_vertices = []

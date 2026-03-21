@@ -57,7 +57,31 @@ class BFS:
             path.append(curr)
             curr = parent.get(curr)
         self.path = path[::-1]
-        print(f"chemin : {self.path}")
+        
+    def get_path_all_drone(self):
+        zones = {z['name']: z for z in self.parser.zones}
+        all_arrive = 0
+        while all_arrive < self.parser.nb_drones:
+            for drone_dict in self.parser.drone_path:
+                for drone_name, path_list in drone_dict.items():
+                    current_name = path_list[-1]
+                    if current_name == 'goal':
+                        continue
+                    idx = self.path.index(current_name)
+                    next_name = self.path[idx + 1]
+                    current_zone = zones[current_name]
+                    next_zone = zones[next_name]
+                    if next_zone['capacity'] > next_zone['drone'] or next_name == 'goal':
+                        path_list.append(next_name)
+                        next_zone['drone'] += 1
+                        if current_name != 'start':
+                            current_zone['drone'] -= 1
+                        if next_name == 'goal':
+                            all_arrive += 1
+                    else:
+                        path_list.append(current_name)
+        print(self.parser.drone_path)
+                
 
             
             
@@ -70,5 +94,6 @@ if __name__ == "__main__":
         test = BFS()
         test.parse_file(sys.argv[len(sys.argv) - 1])
         test.get_path()
+        test.get_path_all_drone()
     except Exception as e:
         print(e)

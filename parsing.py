@@ -10,6 +10,8 @@ class Parsing:
         self.data: List[str] = []
         self.all_line: List[str] = []
         self.nb_drones: int = 0
+        self.drone_path = []
+        self.zones_path = []
         self.zones: List[dict] = []
         self.connections: List[tuple[Dict, Dict]] = []
         self.pos: List[tuple[int, int, str]] = []
@@ -34,6 +36,8 @@ class Parsing:
         self.nb_drones = int(res[1].strip())
         if self.nb_drones < 1:
             raise ValueError("nb of drone can't be smaller than 1")
+        for i in range(self.nb_drones):
+            self.drone_path.append({f"drone_{i+1}": ['start']})
 
     def parse_zone(self, line: str) -> None:
         parts = line.split()
@@ -45,58 +49,30 @@ class Parsing:
             self.start.append((name, x, y))
         if name == "goal":
             self.end.append((name, x, y))
+        zone = {
+                "name": name,
+                "x": x,
+                "y": y,
+                "color": color,
+                "zone": "normal",
+                "capacity": 1,
+                "drone": 0
+            }
         if "[" in line:
             pars = line.split("[")[1].split("]")[0]
             tags = pars.split()
-            zone_pars = None
-            max_drone = None
             for tag in tags:
                 if "=" in tag:
                     key, value = tag.split("=", 1)
                     if key == "color":
-                        color = value
+                        zone['color'] = value
                     if key == "zone":
-                        zone_pars = value
+                        zone['zone'] = value
                     if key == "max_drones":
-                        max_drone = int(value)
-        self.pos.append((x, y, color))
-        if zone_pars is not None and max_drone is not None:
-            zone = {
-                "name": name,
-                "x": x,
-                "y": y,
-                "color": color,
-                "zone": zone_pars,
-                "capacity": max_drone
-            }
-            self.zones.append(zone)
-        elif zone_pars is None and max_drone is not None:
-            zone = {
-                "name": name,
-                "x": x,
-                "y": y,
-                "color": color,
-                "capacity": max_drone
-            }
-            self.zones.append(zone)
-        elif zone_pars is not None and max_drone is None:
-            zone = {
-                "name": name,
-                "x": x,
-                "y": y,
-                "color": color,
-                "zone": zone_pars,
-            }
-            self.zones.append(zone)
-        else:
-            zone = {
-                "name": name,
-                "x": x,
-                "y": y,
-                "color": color,
-
-            }
-            self.zones.append(zone)
+                        zone['capacity'] = int(value)
+        self.zones.append(zone)
+        zone_final = [zone['name'], zone]
+        self.zones_path.append(zone_final)
 
     def parse(self) -> None:
         for line in self.all_line:
