@@ -49,7 +49,65 @@ class Parsing:
             self.start.append((name, x, y))
         if name == "goal":
             self.end.append((name, x, y))
-        zone = {
+
+
+
+
+
+
+
+
+
+        if "[" in line:
+            pars = line.split("[")[1].split("]")[0]
+            tags = pars.split()
+            zone_pars = None
+            max_drone = None
+            for tag in tags:
+                if "=" in tag:
+                    key, value = tag.split("=", 1)
+                    if key == "color":
+                        color = value
+                    if key == "zone":
+                        zone_pars = value
+                    if key == "max_drones":
+                        max_drone = int(value)
+        self.pos.append((x, y, color))
+        if zone_pars is not None and max_drone is not None:
+            zone = {
+                "name": name,
+                "x": x,
+                "y": y,
+                "color": color,
+                "zone": zone_pars,
+                "capacity": max_drone,
+                "drone": 0
+            }
+            self.zones.append(zone)
+        elif zone_pars is None and max_drone is not None:
+            zone = {
+                "name": name,
+                "x": x,
+                "y": y,
+                "color": color,
+                "zone": "normal",
+                "capacity": max_drone,
+                "drone": 0
+            }
+            self.zones.append(zone)
+        elif zone_pars is not None and max_drone is None:
+            zone = {
+                "name": name,
+                "x": x,
+                "y": y,
+                "color": color,
+                "zone": zone_pars,
+                "capacity": 1,
+                "drone": 0
+            }
+            self.zones.append(zone)
+        else:
+            zone = {
                 "name": name,
                 "x": x,
                 "y": y,
@@ -57,22 +115,9 @@ class Parsing:
                 "zone": "normal",
                 "capacity": 1,
                 "drone": 0
+
             }
-        if "[" in line:
-            pars = line.split("[")[1].split("]")[0]
-            tags = pars.split()
-            for tag in tags:
-                if "=" in tag:
-                    key, value = tag.split("=", 1)
-                    if key == "color":
-                        zone['color'] = value
-                    if key == "zone":
-                        zone['zone'] = value
-                    if key == "max_drones":
-                        zone['capacity'] = int(value)
-        self.zones.append(zone)
-        zone_final = [zone['name'], zone]
-        self.zones_path.append(zone_final)
+            self.zones.append(zone)
 
     def parse(self) -> None:
         for line in self.all_line:

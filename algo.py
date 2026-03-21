@@ -80,20 +80,4 @@ class BFS:
                             all_arrive += 1
                     else:
                         path_list.append(current_name)
-        print(self.parser.drone_path)
-                
-
-            
-            
-
-
-
-
-if __name__ == "__main__":
-    try:
-        test = BFS()
-        test.parse_file(sys.argv[len(sys.argv) - 1])
-        test.get_path()
-        test.get_path_all_drone()
-    except Exception as e:
-        print(e)
+        return self.parser.drone_path
