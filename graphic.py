@@ -30,30 +30,21 @@ class DroneDecor(Entity):
         if self.current_step < len(self.path_names):
             target_hub = self.path_names[self.current_step]
             target_pos = self.hub_positions[target_hub] + Vec3(0, 3, 0)
-
             is_last_step = self.current_step == len(self.path_names) - 1
-
-            # 🔥 BLOQUER SEULEMENT SI CE N'EST PAS L'ARRIVÉE
             if not is_last_step:
                 if self.hub_occupancy[target_hub] not in (None, self.name):
                     return
-
             dist = distance(self.position, target_pos)
-
             if dist > 0.1:
                 direction = (target_pos - self.position).normalized()
                 self.position += direction * self.speed * time.dt
             else:
-                # 🔥 LIBÉRER L'ANCIEN HUB
                 if self.current_step > 0:
                     prev_hub = self.path_names[self.current_step - 1]
                     if self.hub_occupancy[prev_hub] == self.name:
                         self.hub_occupancy[prev_hub] = None
-
-                # 🔥 PRENDRE LE HUB (sauf arrivée si tu veux laisser libre)
                 if not is_last_step:
                     self.hub_occupancy[target_hub] = self.name
-
                 self.position = target_pos
                 self.current_step += 1
 
