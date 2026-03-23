@@ -4,7 +4,7 @@ from ursina.shaders import lit_with_shadows_shader # type: ignore
 from parsing import Parsing
 from ursina import Entity, distance, time
 import random
-from algo import BFS
+from algo_test import BFS
 
 
 class DroneDecor(Entity):
@@ -60,7 +60,7 @@ class DroneSimulation:
         self.parser.check_line()
         self.parser.parse()
         self.algo.parse_file(sys.argv[len(sys.argv) - 1])
-        self.algo.get_path()
+        self.algo.path_for_drone()
         self.drones_entities = []
         nb_drone = self.parser.nb_drones
         self.hub_positions = {
@@ -82,7 +82,7 @@ class DroneSimulation:
             self.player, Vec3(0, 1, 0), Vec3(1, 2, 1)
         )
         self.editor_camera = EditorCamera(enabled=False, ignore_paused=True)
-        algo_path = self.algo.get_path_all_drone()
+        algo_path = self.algo.path_for_drone()
         for drone_dict in algo_path:
             for d_name, d_path in drone_dict.items():
                 new_drone = DroneDecor(

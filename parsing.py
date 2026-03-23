@@ -37,7 +37,10 @@ class Parsing:
         if self.nb_drones < 1:
             raise ValueError("nb of drone can't be smaller than 1")
         for i in range(self.nb_drones):
-            self.drone_path.append({f"drone_{i+1}": ['start']})
+            self.drone_path.append(
+                {"id": f"drone_{i+1}",
+                 "path": ['start'],
+                "visited": []})
 
     def parse_zone(self, line: str) -> None:
         parts = line.split()
@@ -108,7 +111,6 @@ class Parsing:
                 "zone": "normal",
                 "capacity": 1,
                 "drone": 0
-
             }
             self.zones.append(zone)
             self.valide_name.append(name)
