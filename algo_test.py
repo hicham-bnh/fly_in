@@ -49,7 +49,7 @@ class BFS:
             current_voisin = next(filter(
                 lambda x: x['name'] == voisin, self.hub), None
                 )
-            if current_voisin['zone'] == "blocked":
+            if current_voisin['zone'] == "blocked" or "dead" in current_voisin['name']:
                 continue
             else:
                 maybe.append(current_voisin)
@@ -84,7 +84,7 @@ class BFS:
                 self.get_path(drone)
         for drone in drones:
             print(drone['path'])
-
+        return drones
 
 
 

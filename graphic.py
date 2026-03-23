@@ -9,6 +9,8 @@ from algo_test import BFS
 
 class DroneDecor(Entity):
     def __init__(self, name, path_names, hub_positions, hub_occupancy):
+        print(path_names)
+        print(hub_positions)
         super().__init__(
             model='sphere',
             color=color.black,
@@ -30,10 +32,9 @@ class DroneDecor(Entity):
         if self.current_step < len(self.path_names):
             target_hub = self.path_names[self.current_step]
             target_pos = self.hub_positions[target_hub] + Vec3(0, 3, 0)
-            is_last_step = self.current_step == len(self.path_names) - 1
-            if not is_last_step:
-                if self.hub_occupancy[target_hub] not in (None, self.name):
-                    return
+            occupant = self.hub_occupancy.get(target_hub)
+            if occupant is not None and occupant != self.name:
+                return
             dist = distance(self.position, target_pos)
             if dist > 0.1:
                 direction = (target_pos - self.position).normalized()
@@ -41,10 +42,10 @@ class DroneDecor(Entity):
             else:
                 if self.current_step > 0:
                     prev_hub = self.path_names[self.current_step - 1]
-                    if self.hub_occupancy[prev_hub] == self.name:
+                    if self.hub_occupancy.get(prev_hub) == self.name:
                         self.hub_occupancy[prev_hub] = None
-                if not is_last_step:
-                    self.hub_occupancy[target_hub] = self.name
+                
+                self.hub_occupancy[target_hub] = self.name
                 self.position = target_pos
                 self.current_step += 1
 
@@ -83,15 +84,18 @@ class DroneSimulation:
         )
         self.editor_camera = EditorCamera(enabled=False, ignore_paused=True)
         algo_path = self.algo.path_for_drone()
-        for drone_dict in algo_path:
-            for d_name, d_path in drone_dict.items():
-                new_drone = DroneDecor(
-                    name=d_name, 
-                    path_names=d_path, 
-                    hub_positions=self.hub_positions,
-                    hub_occupancy=self.hub_occupancy
+        for drone_info in algo_path:
+            # drone_info est {'id': 'drone_1', 'path': ['start', ...], 'visited': [...]}
+            d_name = drone_info['id']
+            d_path = drone_info['path']
+            
+            new_drone = DroneDecor(
+                name=d_name, 
+                path_names=d_path, 
+                hub_positions=self.hub_positions,
+                hub_occupancy=self.hub_occupancy
             )
-                self.drones_entities.append(new_drone)
+            self.drones_entities.append(new_drone)
 
     def generate_network_lines(self):
         all_vertices = []
