@@ -8,7 +8,7 @@ from algo import BFS
 
 
 class DroneDecor(Entity):
-    def __init__(self, name, path_names, hub_positions):
+    def __init__(self, name, path_names, hub_positions, hub_occupancy):
         super().__init__(
             model='sphere',
             color=color.black,
@@ -19,6 +19,7 @@ class DroneDecor(Entity):
         self.start_y = self.y
         self.path_names = path_names
         self.hub_positions = hub_positions
+        self.hub_occupancy = hub_occupancy
         self.current_step = 0
         self.speed = 2.5
         self.timer = 0
@@ -26,16 +27,34 @@ class DroneDecor(Entity):
         
 
     def update(self):
-        if self.timer < self.delay:
-                self.timer += time.dt
-                return
         if self.current_step < len(self.path_names):
             target_hub = self.path_names[self.current_step]
             target_pos = self.hub_positions[target_hub] + Vec3(0, 3, 0)
-            if distance(self.position, target_pos) > 0.1:
+
+            is_last_step = self.current_step == len(self.path_names) - 1
+
+            # 🔥 BLOQUER SEULEMENT SI CE N'EST PAS L'ARRIVÉE
+            if not is_last_step:
+                if self.hub_occupancy[target_hub] not in (None, self.name):
+                    return
+
+            dist = distance(self.position, target_pos)
+
+            if dist > 0.1:
                 direction = (target_pos - self.position).normalized()
                 self.position += direction * self.speed * time.dt
             else:
+                # 🔥 LIBÉRER L'ANCIEN HUB
+                if self.current_step > 0:
+                    prev_hub = self.path_names[self.current_step - 1]
+                    if self.hub_occupancy[prev_hub] == self.name:
+                        self.hub_occupancy[prev_hub] = None
+
+                # 🔥 PRENDRE LE HUB (sauf arrivée si tu veux laisser libre)
+                if not is_last_step:
+                    self.hub_occupancy[target_hub] = self.name
+
+                self.position = target_pos
                 self.current_step += 1
 
 
@@ -57,6 +76,7 @@ class DroneSimulation:
             zone['name']: Vec3(zone['x'] * 2.5, 0.1, zone['y'] * 2.5)
             for zone in self.parser.zones
         }
+        self.hub_occupancy = {name: None for name in self.hub_positions}
         self.create_world()
         self.generate_map(self.parser.pos)
         self.generate_network_lines()
@@ -78,6 +98,7 @@ class DroneSimulation:
                     name=d_name, 
                     path_names=d_path, 
                     hub_positions=self.hub_positions,
+                    hub_occupancy=self.hub_occupancy
             )
                 self.drones_entities.append(new_drone)
 

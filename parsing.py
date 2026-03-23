@@ -49,7 +49,7 @@ class Parsing:
         color = "white"
         if name == "start":
             self.start.append((name, x, y))
-        if name == "goal":
+        if name == "goal" or name == "impossible_goal":
             self.end.append((name, x, y))
         if "[" in line:
             pars = line.split("[")[1].split("]")[0]
