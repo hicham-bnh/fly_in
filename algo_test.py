@@ -33,34 +33,7 @@ class BFS:
             adj[nmae2].append(z1)
         return adj
 
-    def get_path(self, drone: Dict, name):
-        current = drone[name]
-        last = current[-1]
-        if last == 'goal' or last == "impossible_goal":
-            return
-        queue = deque()
-        if last in self.adj:
-            voisins = self.adj[last]
-            for voisin in voisins:
-                if voisin['zone'] == "blocked":
-                    continue
-                if voisin['zone'] == "restricted":
-                    queue.append(voisin['name'])
-                else:
-                    queue.appendleft(voisin['name'])
-        while queue:
-            current = queue.popleft()
-            break
-
-
-    def get_path_drone(self):
-        zones = {x['name']: x for x in self.parser.zones}
-        all_arrived = 0
-        while all_arrived < self.parser.nb_drones:
-            for drone_dict in self.parser.drone_path:
-                name = list(drone_dict.keys())[0]
-                self.get_path(drone_dict, name)
-            break
+    def get_test
 
 
 

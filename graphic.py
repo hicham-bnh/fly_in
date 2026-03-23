@@ -21,7 +21,7 @@ class DroneDecor(Entity):
         self.hub_positions = hub_positions
         self.hub_occupancy = hub_occupancy
         self.current_step = 0
-        self.speed = 2.5
+        self.speed = 3
         self.timer = 0
         self.delay = 5.0
         
