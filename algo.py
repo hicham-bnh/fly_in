@@ -1,6 +1,7 @@
 from parsing import Parsing
 from typing import List, Optional
 from collections import deque
+import sys
 
 
 class BFS:
@@ -14,6 +15,7 @@ class BFS:
         self.parser.read_file(file)
         self.parser.check_line()
         self.parser.parse()
+        self.parser.check_start_end()
         self.start = self.parser.start
         self.end = self.parser.end
         self.connection = self.parser.connections
@@ -64,7 +66,7 @@ class BFS:
             for drone_dict in self.parser.drone_path:
                 for drone_name, path_list in drone_dict.items():
                     current_name = path_list[-1]
-                    if current_name == 'goal':
+                    if current_name == 'goal' or current_name == "impossible_goal":
                         continue
                     idx = self.path.index(current_name)
                     next_name = self.path[idx + 1]
@@ -76,8 +78,21 @@ class BFS:
                         next_zone['drone'] += 1
                         if current_name != 'start':
                             current_zone['drone'] -= 1
-                        if next_name == 'goal':
+                        if next_name == 'goal' or next_name == "impossible_goal":
                             all_arrive += 1
                     else:
                         path_list.append(current_name)
         return self.parser.drone_path
+
+
+
+if __name__ == "__main__":
+    try:
+        test = BFS()
+        test.parse_file(sys.argv[len(sys.argv) - 1])
+        test.get_path()
+        result = test.get_path_all_drone()
+        print(result)
+    except Exception as e:
+        print(e)
+    

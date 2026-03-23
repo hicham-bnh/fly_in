@@ -16,6 +16,7 @@ class Parsing:
         self.pos: List[tuple[int, int, str]] = []
         self.start: List[tuple[str, int, int]] = []
         self.end: List[tuple[str, int, int]] = []
+        self.valide_name: List[str] = []
 
     def read_file(self, file: str) -> None:
         with open(file, "r") as fd:
@@ -41,6 +42,8 @@ class Parsing:
     def parse_zone(self, line: str) -> None:
         parts = line.split()
         name = parts[1]
+        if name in self.valide_name:
+            raise ValueError("name of hub olso exist")
         x = int(parts[2])
         y = int(parts[3])
         color = "white"
@@ -108,6 +111,7 @@ class Parsing:
 
             }
             self.zones.append(zone)
+            self.valide_name.append(name)
 
     def parse(self) -> None:
         for line in self.all_line:
@@ -126,13 +130,20 @@ class Parsing:
         left = line.split("[")[0]
         part = left.split()[1]
         zone1, zone2 = part.split("-")
+        zone_a = None
+        zone_b = None
         for i in self.zones:
             if i['name'] == zone1:
                 zone_a = i
             if i['name'] == zone2:
                 zone_b = i
+        if zone_a is None or zone_b is None:
+            raise ValueError("name connection invalide")
         self.connections.append((zone_a, zone_b))
 
+    def check_start_end(self):
+        if self.start == [] or self.end == []:
+            raise ValueError("you must have start end goal")
 
 class ZoneType(Enum):
     NORMAL = "normal"
