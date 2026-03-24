@@ -37,12 +37,29 @@ class BFS:
                 adj[name1].append(z2['name'])
                 adj[name2].append(z1['name'])
         return adj
+    
+    def is_path_to_goal(self, start_node: str, goal_node: str) -> bool:
+        queue = deque([start_node])
+        visited = {start_node}
+        
+        while queue:
+            curr = queue.popleft()
+            if curr == goal_node:
+                return True
+            for neighbor in self.adj.get(curr, []):
+                zone_obj = next((z for z in self.hub if z['name'] == neighbor), None)
+                if neighbor not in visited and "dead" not in neighbor and zone_obj['zone'] != "blocked":
+                    visited.add(neighbor)
+                    queue.append(neighbor)
+        return False
 
     def get_path(self, drone) -> None:
         positions = {z['name']: z for z in self.hub}
         positions[self.parser.end[0][0]]['capacity'] = self.parser.nb_drones
         ordre_zones = {"priority": 0, "normal": 1, "restricted": 2}
         current_pos = drone['path'][-1]
+        if current_pos == self.parser.end[0][0]:
+            return
         voisins = self.adj[current_pos]
         maybe = deque()
         for voisin in voisins:
@@ -66,7 +83,7 @@ class BFS:
                 continue
             if pos in drone['visited']:
                 continue
-            else:
+            if self.is_path_to_goal(pos, self.parser.end[0][0]):
                 positions[pos]['drone'] += 1
                 drone['visited'].append(pos)
                 positions[current_pos]['drone'] -= 1
