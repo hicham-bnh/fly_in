@@ -1,7 +1,7 @@
 from typing import List, Optional, Dict
 from dataclasses import dataclass
 from enum import Enum
-
+import sys
 
 class Parsing:
 
@@ -17,6 +17,8 @@ class Parsing:
         self.start: List[tuple[str, int, int]] = []
         self.end: List[tuple[str, int, int]] = []
         self.valide_name: List[str] = []
+        self.is_link = False
+        self.link_capacity = []
 
     def read_file(self, file: str) -> None:
         with open(file, "r") as fd:
@@ -128,20 +130,44 @@ class Parsing:
             elif line.startswith("connection:"):
                 self.parse_connection(line)
 
+    
     def parse_connection(self, line: str) -> None:
-        left = line.split("[")[0]
-        part = left.split()[1]
-        zone1, zone2 = part.split("-")
-        zone_a = None
-        zone_b = None
-        for i in self.zones:
-            if i['name'] == zone1:
-                zone_a = i
-            if i['name'] == zone2:
-                zone_b = i
-        if zone_a is None or zone_b is None:
-            raise ValueError("name connection invalide")
-        self.connections.append((zone_a, zone_b))
+        if "max_link_capacity" in line and self.is_link == False:
+            test = line.split(" ")[2]
+            num = test.split('=')
+            result = num[1].split(']')
+            left = line.split("[")[0]
+            part = left.split()[1]
+            zone1, zone2 = part.split("-")
+            self.link_capacity.append((int(result[0]), zone2))
+            self.is_link = True
+            zone_a = None
+            zone_b = None
+            for i in self.zones:
+                if i['name'] == zone1:
+                    zone_a = i
+                if i['name'] == zone2:
+                    zone_b = i
+            if zone_a is None or zone_b is None:
+                raise ValueError("name connection invalide")
+            self.connections.append((zone_a, zone_b))
+        else:
+            left = line.split("[")[0]
+            part = left.split()[1]
+            zone1, zone2 = part.split("-")
+            if self.is_link and self.link_capacity[0] is not zone2 and self.link_capacity[0][1][:-1] in zone2:
+                return
+            zone_a = None
+            zone_b = None
+            for i in self.zones:
+                if i['name'] == zone1:
+                    zone_a = i
+                if i['name'] == zone2:
+                    zone_b = i
+            if zone_a is None or zone_b is None:
+                raise ValueError("name connection invalide")
+            self.connections.append((zone_a, zone_b))
+
 
     def check_start_end(self):
         if self.start == [] or self.end == []:
@@ -170,3 +196,4 @@ class Connection:
     zone1: str
     zone2: str
     max_capacity: int = 1
+

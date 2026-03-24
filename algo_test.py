@@ -82,16 +82,12 @@ class BFS:
         while self.arrived < self.parser.nb_drones:
             for drone in drones:
                 self.get_path(drone)
-        for drone in drones:
-            print(drone['path'])
+        print(drones)
         return drones
 
 
 
 if __name__ == "__main__":
-    try:
         test = BFS()
         test.parse_file(sys.argv[len(sys.argv) - 1])
         test.path_for_drone()
-    except Exception as e:
-        print(e)
