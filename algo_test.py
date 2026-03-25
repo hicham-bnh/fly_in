@@ -12,6 +12,7 @@ class BFS:
         self.path: List[str] = []
         self.adj = {}
         self.arrived = 0
+        self.old = None
 
     def parse_file(self, file: str) -> None:
         self.start = self.parser.start
@@ -92,6 +93,12 @@ class BFS:
                 drone['path'].append(pos)
                 if pos == self.parser.end[0][0]:
                     self.arrived += 1
+                if self.old is not None and pos == self.old:
+                    print('', end=' ')
+                else:
+                    print()
+                print(f"{drone['id']}-{pos}", end="")
+                self.old = pos
                 return
         drone['path'].append(current_pos)
 
@@ -101,8 +108,6 @@ class BFS:
         while self.arrived < self.parser.nb_drones:
             for drone in drones:
                 self.get_path(drone)
-        for d in drones:
-            print(len(d['path']))
         return drones
 
 
