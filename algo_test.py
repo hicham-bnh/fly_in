@@ -14,10 +14,6 @@ class BFS:
         self.arrived = 0
 
     def parse_file(self, file: str) -> None:
-        self.parser.read_file(file)
-        self.parser.check_line()
-        self.parser.parse()
-        self.parser.check_start_end()
         self.start = self.parser.start
         self.end = self.parser.end
         self.connection = self.parser.connections
@@ -31,14 +27,11 @@ class BFS:
         for z1, z2 in self.parser.connections:
             name1 = z1['name']
             name2 = z2['name']
-            if name1 == "start":
-                adj[name1].append(z2['name'])
-            else:
-                adj[name1].append(z2['name'])
-                adj[name2].append(z1['name'])
+            adj[name1].append(name2)
         return adj
     
     def is_path_to_goal(self, start_node: str, goal_node: str) -> bool:
+        ordre_zones = {"priority": 0, "normal": 1, "restricted": 2}
         queue = deque([start_node])
         visited = {start_node}
         
@@ -46,11 +39,18 @@ class BFS:
             curr = queue.popleft()
             if curr == goal_node:
                 return True
+            voisins_valide = []
             for neighbor in self.adj.get(curr, []):
+                if neighbor in visited or 'dead' in neighbor:
+                    continue
                 zone_obj = next((z for z in self.hub if z['name'] == neighbor), None)
-                if neighbor not in visited and "dead" not in neighbor and zone_obj['zone'] != "blocked":
-                    visited.add(neighbor)
-                    queue.append(neighbor)
+                if zone_obj and zone_obj['zone'] != 'blocked':
+                    voisins_valide.append(zone_obj)
+            voisins_trie = sorted(voisins_valide, key=lambda x: (ordre_zones.get(x['zone'], 3), x['name']))
+            for neighbor_obj in voisins_trie:
+                name = neighbor_obj['name']
+                visited.add(name)
+                queue.append(name)
         return False
 
     def get_path(self, drone) -> None:
@@ -102,7 +102,7 @@ class BFS:
             for drone in drones:
                 self.get_path(drone)
         for d in drones:
-            print(d['path'])
+            print(len(d['path']))
         return drones
 
 

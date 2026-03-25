@@ -22,6 +22,7 @@ class Parsing:
         self.read_file(sys.argv[len(sys.argv) - 1])
         self.check_line()
         self.parse()
+        self.check_start_end()
 
     def read_file(self, file: str) -> None:
         with open(file, "r") as fd:
