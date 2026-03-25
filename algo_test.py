@@ -84,6 +84,8 @@ class BFS:
             if pos in drone['visited']:
                 continue
             if self.is_path_to_goal(pos, self.parser.end[0][0]):
+                if positions[pos]['zone'] == "restricted":
+                    drone['path'].append(current_pos)
                 positions[pos]['drone'] += 1
                 drone['visited'].append(pos)
                 positions[current_pos]['drone'] -= 1
@@ -99,7 +101,8 @@ class BFS:
         while self.arrived < self.parser.nb_drones:
             for drone in drones:
                 self.get_path(drone)
-        print(drones)
+        for d in drones:
+            print(d['path'])
         return drones
 
 

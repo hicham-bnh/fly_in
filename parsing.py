@@ -19,6 +19,9 @@ class Parsing:
         self.valide_name: List[str] = []
         self.is_link = False
         self.link_capacity = []
+        self.read_file(sys.argv[len(sys.argv) - 1])
+        self.check_line()
+        self.parse()
 
     def read_file(self, file: str) -> None:
         with open(file, "r") as fd:
