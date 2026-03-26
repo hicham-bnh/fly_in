@@ -14,7 +14,7 @@ class BFS:
         self.arrived = 0
         self.old = None
 
-    def parse_file(self, file: str) -> None:
+    def parse_file(self) -> None:
         self.start = self.parser.start
         self.end = self.parser.end
         self.connection = self.parser.connections
@@ -115,4 +115,4 @@ class BFS:
 if __name__ == "__main__":
         test = BFS()
         test.parse_file(sys.argv[len(sys.argv) - 1])
-        test.path_for_drone()
+        print(test.path_for_drone())
