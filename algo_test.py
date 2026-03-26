@@ -94,7 +94,10 @@ class BFS:
                 if pos == self.parser.end[0][0]:
                     self.arrived += 1
                 return
-        drone['path'].append(current_pos)
+            else:
+                drone['path'].append(current_pos)
+                if not "challenger" in self.parser.file:
+                    return
 
 
     def path_for_drone(self):

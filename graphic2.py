@@ -235,6 +235,7 @@ if __name__ == "__main__":
     parse = Parsing()
     algo = BFS()
     graph = Graphic(parse.pos, parse.zones)
+    max_len = 0
     algo.parse_file()
     algo.build_adj()
     graph.generate_world()
@@ -242,5 +243,14 @@ if __name__ == "__main__":
     graph.generate_hub_labels()
     graph.generate_drone(parse.nb_drones)
     graph.generat_connections(parse.connections)
-    graph.assign_paths_from_data(algo.path_for_drone(), speed=1.0)
+    result = algo.path_for_drone()
+    graph.assign_paths_from_data(result, speed=2.0)
+    for l in result:
+            if len(l['path']) > max_len:
+                max_len = len(l['path'])
+    for i in range(1, max_len):
+        for res in result:
+            if len(res['path']) > i:
+                print(f"{res['id']}-{res['path'][i]}", end=' ')
+        print()
     graph.run()
