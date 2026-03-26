@@ -93,12 +93,6 @@ class BFS:
                 drone['path'].append(pos)
                 if pos == self.parser.end[0][0]:
                     self.arrived += 1
-                if self.old is not None and pos == self.old:
-                    print('', end=' ')
-                else:
-                    print()
-                print(f"{drone['id']}-{pos}", end="")
-                self.old = pos
                 return
         drone['path'].append(current_pos)
 
@@ -114,5 +108,15 @@ class BFS:
 
 if __name__ == "__main__":
         test = BFS()
-        test.parse_file(sys.argv[len(sys.argv) - 1])
-        print(test.path_for_drone())
+        max_len = 0
+        test.parse_file()
+        result = test.path_for_drone()
+        for l in result:
+            if len(l['path']) > max_len:
+                max_len = len(l['path'])
+        for i in range(1, max_len):
+            for res in result:
+                if len(res['path']) > i:
+                    print(f"{res['id']}-{res['path'][i]}", end=' ')
+            print()
+            
