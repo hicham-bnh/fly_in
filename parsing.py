@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from enum import Enum
 import sys
 
+
 class Parsing:
 
     def __init__(self) -> None:
@@ -17,7 +18,8 @@ class Parsing:
         self.start: List[tuple[str, int, int]] = []
         self.end: List[tuple[str, int, int]] = []
         self.valide_name: List[str] = []
-        self.is_link = False
+        self.is_link = 0
+        self.nmbr_link = 0
         self.link_capacity = []
         self.read_file(sys.argv[len(sys.argv) - 1])
         self.check_line()
@@ -45,9 +47,12 @@ class Parsing:
             raise ValueError("nb of drone can't be smaller than 1")
         for i in range(self.nb_drones):
             self.drone_path.append(
-                {"id": f"drone_{i+1}",
-                 "path": ['start'],
-                "visited": []})
+                {
+                    "id": f"drone_{i+1}",
+                    "path": ['start'],
+                    "visited": []
+                    }
+                )
 
     def parse_zone(self, line: str) -> None:
         parts = line.split()
@@ -75,6 +80,8 @@ class Parsing:
                         zone_pars = value
                     if key == "max_drones":
                         max_drone = int(value)
+                        if max_drone < 1:
+                            raise ValueError("capacity must be more than 0")
         self.pos.append((x, y, color))
         if zone_pars is not None and max_drone is not None:
             zone = {
@@ -135,15 +142,17 @@ class Parsing:
             elif line.startswith("connection:"):
                 self.parse_connection(line)
 
-    
     def parse_connection(self, line: str) -> None:
-        if "max_link_capacity" in line and self.is_link == False:
+        if "max_link_capacity" in line and self.is_link < self.nmbr_link:
             test = line.split(" ")[2]
             num = test.split('=')
             result = num[1].split(']')
+            self.nmbr_link = result
             left = line.split("[")[0]
             part = left.split()[1]
             zone1, zone2 = part.split("-")
+            if int(result[0]) < 1:
+                raise ValueError("capacity link must be more than0")
             self.link_capacity.append((int(result[0]), zone2))
             self.is_link = True
             zone_a = None
@@ -156,11 +165,13 @@ class Parsing:
             if zone_a is None or zone_b is None:
                 raise ValueError("name connection invalide")
             self.connections.append((zone_a, zone_b))
+            self.is_link += 1
         else:
             left = line.split("[")[0]
             part = left.split()[1]
             zone1, zone2 = part.split("-")
-            if self.is_link and self.link_capacity[0] is not zone2 and self.link_capacity[0][1][:-1] in zone2:
+            if self.is_link and self.link_capacity[0] is not zone2\
+                    and self.link_capacity[0][1][:-1] in zone2:
                 return
             zone_a = None
             zone_b = None
@@ -173,10 +184,10 @@ class Parsing:
                 raise ValueError("name connection invalide")
             self.connections.append((zone_a, zone_b))
 
-
     def check_start_end(self):
         if self.start == [] or self.end == []:
             raise ValueError("you must have start end goal")
+
 
 class ZoneType(Enum):
     NORMAL = "normal"
@@ -201,4 +212,3 @@ class Connection:
     zone1: str
     zone2: str
     max_capacity: int = 1
-

@@ -1,7 +1,6 @@
 from parsing import Parsing
-from typing import List, Optional, Dict
+from typing import List
 from collections import deque
-import sys
 
 
 class BFS:
@@ -30,12 +29,11 @@ class BFS:
             name2 = z2['name']
             adj[name1].append(name2)
         return adj
-    
+
     def is_path_to_goal(self, start_node: str, goal_node: str) -> bool:
         ordre_zones = {"priority": 0, "normal": 1, "restricted": 2}
         queue = deque([start_node])
         visited = {start_node}
-        
         while queue:
             curr = queue.popleft()
             if curr == goal_node:
@@ -44,10 +42,15 @@ class BFS:
             for neighbor in self.adj.get(curr, []):
                 if neighbor in visited or 'dead' in neighbor:
                     continue
-                zone_obj = next((z for z in self.hub if z['name'] == neighbor), None)
+                zone_obj = next(
+                    (z for z in self.hub if z['name'] == neighbor), None
+                    )
                 if zone_obj and zone_obj['zone'] != 'blocked':
                     voisins_valide.append(zone_obj)
-            voisins_trie = sorted(voisins_valide, key=lambda x: (ordre_zones.get(x['zone'], 3), x['name']))
+            voisins_trie = sorted(
+                voisins_valide, key=lambda x: (
+                    ordre_zones.get(x['zone'], 3), x['name'])
+                    )
             for neighbor_obj in voisins_trie:
                 name = neighbor_obj['name']
                 visited.add(name)
@@ -67,7 +70,8 @@ class BFS:
             current_voisin = next(filter(
                 lambda x: x['name'] == voisin, self.hub), None
                 )
-            if current_voisin['zone'] == "blocked" or "dead" in current_voisin['name']:
+            if current_voisin['zone'] == "blocked" or\
+                    "dead" in current_voisin['name']:
                 continue
             else:
                 maybe.append(current_voisin)
@@ -94,11 +98,9 @@ class BFS:
                 if pos == self.parser.end[0][0]:
                     self.arrived += 1
                 return
-            else:
-                drone['path'].append(current_pos)
-                if not "challenger" in self.parser.file:
-                    return
-
+        drone['path'].append(current_pos)
+        if "challenger" not in self.parser.file:
+            return
 
     def path_for_drone(self):
         drones = self.parser.drone_path
@@ -108,18 +110,16 @@ class BFS:
         return drones
 
 
-
 if __name__ == "__main__":
-        test = BFS()
-        max_len = 0
-        test.parse_file()
-        result = test.path_for_drone()
-        for l in result:
-            if len(l['path']) > max_len:
-                max_len = len(l['path'])
-        for i in range(1, max_len):
-            for res in result:
-                if len(res['path']) > i:
-                    print(f"{res['id']}-{res['path'][i]}", end=' ')
-            print()
-            
+    test = BFS()
+    max_len = 0
+    test.parse_file()
+    result = test.path_for_drone()
+    for res in result:
+        if len(res['path']) > max_len:
+            max_len = len(res['path'])
+    for i in range(1, max_len):
+        for res in result:
+            if len(res['path']) > i:
+                print(f"{res['id']}-{res['path'][i]}", end=' ')
+        print()

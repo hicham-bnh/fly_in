@@ -244,7 +244,7 @@ if __name__ == "__main__":
     graph.generate_drone(parse.nb_drones)
     graph.generat_connections(parse.connections)
     result = algo.path_for_drone()
-    graph.assign_paths_from_data(result, speed=2.0)
+    graph.assign_paths_from_data(result, speed=2.5)
     for l in result:
             if len(l['path']) > max_len:
                 max_len = len(l['path'])
