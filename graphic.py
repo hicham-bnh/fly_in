@@ -110,8 +110,8 @@ class Graphic:
     def assign_paths_from_data(
             self,
             drone_data: Any,
-            speed: float =5.0
-        ) -> None:
+            speed: float = 5.0
+    ) -> None:
         colors = [color.red, color.blue, color.orange, color.cyan,
                   color.magenta, color.lime, color.white, color.pink]
         for i, drone_info in enumerate(drone_data):

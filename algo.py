@@ -69,11 +69,10 @@ class BFS:
         maybe: deque[Any] = deque()
         for voisin in voisins:
             current_voisin = next(filter(
-                lambda x: x['name'] == voisin, self.hub), None
+                lambda x: x['name'] == voisin, self.hub)
                 )
-            if current_voisin is not None and\
-                    ((current_voisin['zone'] == "blocked") or\
-                    ("dead" in current_voisin['name'])):
+            if current_voisin['zone'] == "blocked" or\
+                    "dead" in current_voisin['name']:
                 continue
             else:
                 maybe.append(current_voisin)
@@ -100,6 +99,7 @@ class BFS:
                 if pos == self.parser.end[0][0]:
                     self.arrived += 1
                 return
+            break
         drone['path'].append(current_pos)
         if "challenger" not in self.parser.file:
             return
