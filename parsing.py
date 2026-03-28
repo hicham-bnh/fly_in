@@ -4,7 +4,7 @@ from enum import Enum
 
 
 class Parsing:
-    def __init__(self, file: str) -> None:
+    def __init__(self, file) -> None:
         self.data: List[str] = []
         self.all_line: List[str] = []
         self.nb_drones: int = 0
@@ -17,15 +17,15 @@ class Parsing:
         self.end: List[tuple[str, int, int]] = []
         self.valide_name: List[str] = []
         self.is_link = 0
-        self.nmbr_link: int = 0
-        self.link_capacity: List[Any] = []
+        self.nmbr_link = 0
+        self.link_capacity = []
         self.read_file(file)
         self.check_line()
         self.parse()
         self.check_start_end()
         self.file = file
 
-    def read_file(self, file: str) -> None:
+    def read_file(self, file) -> None:
         with open(file, "r") as fd:
             self.data = fd.readlines()
 

@@ -1,18 +1,18 @@
 from parsing import Parsing
-from typing import List, Dict, Any
+from typing import List
 from collections import deque
-
+from typing import Dict, Any
 
 class BFS:
-    def __init__(self, file: str) -> None:
+    def __init__(self, file) -> None:
         self.parser = Parsing(file)
         self.start: List[tuple[str, int, int]] = []
         self.end: List[tuple[str, int, int]] = []
         self.path: List[str] = []
-        self.adj: Dict[Any, Any] = {}
+        self.adj = {}
         self.arrived = 0
         self.old = None
-        self.file = file
+
 
     def parse_file(self) -> None:
         self.start = self.parser.start
@@ -58,7 +58,7 @@ class BFS:
                 queue.append(name)
         return False
 
-    def get_path(self, drone: Any) -> None:
+    def get_path(self, drone) -> None:
         positions = {z['name']: z for z in self.hub}
         positions[self.parser.end[0][0]]['capacity'] = self.parser.nb_drones
         ordre_zones = {"priority": 0, "normal": 1, "restricted": 2}
@@ -66,15 +66,14 @@ class BFS:
         if current_pos == self.parser.end[0][0]:
             return
         voisins = self.adj[current_pos]
-        maybe: deque[Any] = deque()
+        maybe = deque()
         for voisin in voisins:
             current_voisin = next(filter(
                 lambda x: x['name'] == voisin, self.hub), None
                 )
-            if current_voisin is not None:
-                if current_voisin['zone'] == "blocked" or\
-                        "dead" in current_voisin['name']:
-                    continue
+            if current_voisin['zone'] == "blocked" or\
+                    "dead" in current_voisin['name']:
+                continue
             else:
                 maybe.append(current_voisin)
         voisins_final = deque(sorted(
@@ -104,7 +103,7 @@ class BFS:
         if "challenger" not in self.parser.file:
             return
 
-    def path_for_drone(self) -> Any:
+    def path_for_drone(self):
         drones = self.parser.drone_path
         while self.arrived < self.parser.nb_drones:
             for drone in drones:
