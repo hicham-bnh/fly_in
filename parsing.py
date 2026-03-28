@@ -1,31 +1,29 @@
-from typing import List, Optional, Dict
+from typing import List, Optional, Any
 from dataclasses import dataclass
 from enum import Enum
-import sys
 
 
 class Parsing:
-
-    def __init__(self) -> None:
+    def __init__(self, file: str) -> None:
         self.data: List[str] = []
         self.all_line: List[str] = []
         self.nb_drones: int = 0
-        self.drone_path: List = []
-        self.zones_path: List = []
-        self.zones: List[dict] = []
-        self.connections: List[tuple[Dict, Dict]] = []
+        self.drone_path: List[Any] = []
+        self.zones_path: List[str] = []
+        self.zones: List[Any] = []
+        self.connections: List[Any] = []
         self.pos: List[tuple[int, int, str]] = []
         self.start: List[tuple[str, int, int]] = []
         self.end: List[tuple[str, int, int]] = []
         self.valide_name: List[str] = []
         self.is_link = 0
-        self.nmbr_link = 0
-        self.link_capacity = []
-        self.read_file(sys.argv[len(sys.argv) - 1])
+        self.nmbr_link: int = 0
+        self.link_capacity: List[Any] = []
+        self.read_file(file)
         self.check_line()
         self.parse()
         self.check_start_end()
-        self.file = sys.argv[len(sys.argv) - 1]
+        self.file = file
 
     def read_file(self, file: str) -> None:
         with open(file, "r") as fd:
@@ -146,8 +144,8 @@ class Parsing:
         if "max_link_capacity" in line and self.is_link < self.nmbr_link:
             test = line.split(" ")[2]
             num = test.split('=')
-            result = num[1].split(']')
-            self.nmbr_link = result
+            result = str(num[1].split(']'))
+            self.nmbr_link = int(result)
             left = line.split("[")[0]
             part = left.split()[1]
             zone1, zone2 = part.split("-")
@@ -184,7 +182,7 @@ class Parsing:
                 raise ValueError("name connection invalide")
             self.connections.append((zone_a, zone_b))
 
-    def check_start_end(self):
+    def check_start_end(self) -> None:
         if self.start == [] or self.end == []:
             raise ValueError("you must have start end goal")
 
