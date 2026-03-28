@@ -118,7 +118,7 @@ if __name__ == "__main__":
     for res in result:
         if len(res['path']) > max_len:
             max_len = len(res['path'])
-    for i in range(1, max_len):
+    for i in range(max_len):
         for res in result:
             if len(res['path']) > i:
                 print(f"{res['id']}-{res['path'][i]}", end=' ')
