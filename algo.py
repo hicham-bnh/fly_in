@@ -5,12 +5,12 @@ from typing import Dict, Any
 
 
 class BFS:
-    def __init__(self, file) -> None:
+    def __init__(self, file: str) -> None:
         self.parser = Parsing(file)
         self.start: List[tuple[str, int, int]] = []
         self.end: List[tuple[str, int, int]] = []
         self.path: List[str] = []
-        self.adj = {}
+        self.adj: Dict[Any, Any] = {}
         self.arrived = 0
         self.old = None
 
@@ -58,7 +58,7 @@ class BFS:
                 queue.append(name)
         return False
 
-    def get_path(self, drone) -> None:
+    def get_path(self, drone: Any) -> None:
         positions = {z['name']: z for z in self.hub}
         positions[self.parser.end[0][0]]['capacity'] = self.parser.nb_drones
         ordre_zones = {"priority": 0, "normal": 1, "restricted": 2}
@@ -66,13 +66,14 @@ class BFS:
         if current_pos == self.parser.end[0][0]:
             return
         voisins = self.adj[current_pos]
-        maybe = deque()
+        maybe: deque[Any] = deque()
         for voisin in voisins:
             current_voisin = next(filter(
                 lambda x: x['name'] == voisin, self.hub), None
                 )
-            if current_voisin['zone'] == "blocked" or\
-                    "dead" in current_voisin['name']:
+            if current_voisin is not None and\
+                    ((current_voisin['zone'] == "blocked") or\
+                    ("dead" in current_voisin['name'])):
                 continue
             else:
                 maybe.append(current_voisin)
@@ -103,7 +104,7 @@ class BFS:
         if "challenger" not in self.parser.file:
             return
 
-    def path_for_drone(self):
+    def path_for_drone(self) -> List[Any]:
         drones = self.parser.drone_path
         while self.arrived < self.parser.nb_drones:
             for drone in drones:

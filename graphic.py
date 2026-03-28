@@ -2,11 +2,11 @@ from ursina import Text, Ursina, color, Vec3, Sky
 from ursina import EditorCamera, Entity, Mesh, time
 from ursina import DirectionalLight, lerp
 from ursina.prefabs.first_person_controller import FirstPersonController
-from typing import Any
+from typing import Any, List, Dict
 
 
 class Graphic:
-    def __init__(self, position, all_pos) -> None:
+    def __init__(self, position: Any, all_pos: Any) -> None:
         self.app = Ursina(title="fly-in")
         self.generate_world()
         self.player = FirstPersonController(
@@ -18,15 +18,15 @@ class Graphic:
         )
         self.camera = EditorCamera(enabled=False, ignore_paused=True)
         self.camera.y = 5
-        self.drones = []
-        self.drone_entities = {}
+        self.drones: List[Any] = []
+        self.drone_entities: Dict[Any, Any] = {}
         self.all_pos = all_pos
         self.position = position
         self.hub_positions = {
             zone['name']: Vec3(zone['x'] * 2.5, 3, zone['y'] * 2.5)
             for zone in self.all_pos
         }
-        self.drone_states = {}
+        self.drone_states: Dict[Any, Any] = {}
         self.hub_positions = {
             zone['name']: Vec3(zone['x'] * 2.5, 3, zone['y'] * 2.5)
             for zone in self.all_pos
@@ -40,14 +40,14 @@ class Graphic:
         instance_handler.input = self.input
         self.current_turn = 0
 
-    def input(self, key) -> None:
+    def input(self, key: Any) -> None:
         if key == 'space' and not self.is_moving:
             self.current_turn += 1
             self.is_moving = True
         if key == 'escape':
             quit()
 
-    def generate_world(self):
+    def generate_world(self) -> None:
         self.ground = Entity(
             model="plane",
             collider='box',
@@ -64,7 +64,7 @@ class Graphic:
         updater.update = self._update_drones
         self.app.run()
 
-    def generate_map(self):
+    def generate_map(self) -> None:
         for a, b, col_data in self.position:
             if col_data == "purple":
                 col_data = "violet"
@@ -87,7 +87,7 @@ class Graphic:
                         if hasattr(color, clean_color) else color.white
             )
 
-    def generate_hub_labels(self):
+    def generate_hub_labels(self) -> None:
         for name, pos in self.hub_positions.items():
             Text(
                 text=name,
@@ -97,7 +97,7 @@ class Graphic:
                 color=color.yellow
             )
 
-    def generate_drone(self, nb_drones):
+    def generate_drone(self, nb_drones: int) -> None:
         for i in range(nb_drones):
             drone = Entity(
                 model='sphere',
@@ -107,7 +107,11 @@ class Graphic:
             )
             self.drones.append(drone)
 
-    def assign_paths_from_data(self, drone_data, speed=5.0):
+    def assign_paths_from_data(
+            self,
+            drone_data: Any,
+            speed: float =5.0
+        ) -> None:
         colors = [color.red, color.blue, color.orange, color.cyan,
                   color.magenta, color.lime, color.white, color.pink]
         for i, drone_info in enumerate(drone_data):
@@ -137,7 +141,7 @@ class Graphic:
                 'slot':     i
             }
 
-    def _update_drones(self):
+    def _update_drones(self) -> None:
         if not self.is_moving:
             return
         all_stopped = True
@@ -159,7 +163,7 @@ class Graphic:
         if all_stopped:
             self.is_moving = False
 
-    def generat_connections(self, connections):
+    def generat_connections(self, connections: Any) -> None:
         for zone1, zone2 in connections:
             name1 = zone1['name']
             name2 = zone2['name']
