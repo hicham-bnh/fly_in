@@ -34,6 +34,17 @@ class Graphic:
             zone['name']: zone['capacity']
             for zone in self.all_pos
         }
+        self.is_moving = False
+        instance_handler = Entity()
+        instance_handler.input = self.input # On lie le clavier
+        self.current_turn = 0
+
+    def input(self, key):
+        if key == 'space' and not self.is_moving:
+            self.current_turn += 1
+            self.is_moving = True
+        if key == 'escape':
+            quit()
 
     def generate_world(self):
         self.ground = Entity(
@@ -97,123 +108,62 @@ class Graphic:
 
         for i, drone_info in enumerate(drone_data):
             drone_id = drone_info['id']
-            path     = drone_info['path']
-            clean_path = []
-            for hub in path:
-                if hub not in self.hub_positions:
-                    continue
-                if not clean_path or clean_path[-1] != hub:
-                    clean_path.append(hub)
+            # On garde le path EXACTEMENT comme l'algo le donne (avec les répétitions)
+            path = drone_info['path'] 
 
-            if len(clean_path) < 2:
+            if not path:
                 continue
 
-            start_pos = self.hub_positions[clean_path[0]]
+            start_pos = self.hub_positions[path[0]]
             drone_entity = Entity(
                 model='sphere',
                 color=colors[i % len(colors)],
                 scale=Vec3(0.5, 0.5, 0.5),
                 position=start_pos
             )
-            label = Text(
-                text=drone_id,
-                scale=6,
-                billboard=True,
-                color=colors[i % len(colors)],
-                parent=drone_entity,
-                y=1.4
-            )
+            
+            # Label pour voir l'ID du drone
+            Text(text=drone_id, scale=6, billboard=True, parent=drone_entity, y=1.4, color=drone_entity.color)
 
             self.drone_entities[drone_id] = drone_entity
             self.drone_states[drone_id] = {
                 'entity':   drone_entity,
-                'path':     clean_path,
-                'seg_idx':  0,
-                'progress': 0.0,
-                'speed':    speed,
-                'done':     False,
+                'path':     path, # On utilise le path complet
+                'slot':     i
             }
+      
 
     def _update_drones(self):
-        hub_occupancy = {} 
+        if not self.is_moving:
+            return
 
+        all_stopped = True
+        
         for drone_id, state in self.drone_states.items():
-            if state['done']:
-                continue
-            path    = state['path']
-            seg_idx = state['seg_idx']
-            if state['progress'] == 0.0:
-                if seg_idx < len(path):
-                    hub = path[seg_idx]
-                    hub_occupancy[hub] = hub_occupancy.get(hub, 0) + 1
+            path = state['path']
+            
+            # On prend l'index du tour actuel
+            # Si le tour est plus grand que le chemin, on reste sur la dernière position
+            idx = min(self.current_turn, len(path) - 1)
+            target_name = path[idx]
+            
+            # Calcul du décalage (slot) pour voir les 25 drones
+            s = state['slot']
+            offset = Vec3(0, 0,0)
+            target_pos = self.hub_positions[target_name] + offset
+
+            # Calcul de la distance
+            dist = (target_pos - state['entity'].position).length()
+
+            if dist > 0.05:
+                all_stopped = False
+                # Mouvement vers SA cible de CE tour
+                state['entity'].position = lerp(state['entity'].position, target_pos, 15 * time.dt)
             else:
-                if seg_idx + 1 < len(path):
-                    hub = path[seg_idx + 1]
-                    hub_occupancy[hub] = hub_occupancy.get(hub, 0) + 1
+                state['entity'].position = target_pos
 
-        can_move = set()
-        for drone_id, state in self.drone_states.items():
-            if state['done']:
-                continue
-            if state['progress'] > 0.0:
-
-                can_move.add(drone_id)
-                continue
-            path    = state['path']
-            seg_idx = state['seg_idx']
-            if seg_idx >= len(path) - 1:
-                continue
-            next_hub = path[seg_idx + 1]
-            current_count = hub_occupancy.get(next_hub, 0)
-            capacity      = self.hub_capacity.get(next_hub, 1)
-
-            if current_count < capacity:
-                can_move.add(drone_id)
-
-                hub_occupancy[next_hub] = current_count + 1
-
-        if not hasattr(self, '_debug_timer'):
-            self._debug_timer = 0
-        self._debug_timer += time.dt
-        if self._debug_timer >= 1.0:
-            self._debug_timer = 0
-
-
-        for drone_id, state in self.drone_states.items():
-            if state['done']:
-                continue
-
-            path    = state['path']
-            seg_idx = state['seg_idx']
-
-            if seg_idx >= len(path) - 1:
-                state['done'] = True
-                continue
-
-            if drone_id not in can_move:
-                continue
-
-            start = self.hub_positions[path[seg_idx]]
-            end   = self.hub_positions[path[seg_idx + 1]]
-            dist  = (end - start).length()
-
-            if dist == 0:
-                state['seg_idx'] += 1
-                state['progress'] = 0.0
-                continue
-
-            state['progress'] += (state['speed'] / dist) * time.dt
-
-            if state['progress'] >= 1.0:
-                state['seg_idx']  += 1
-                state['progress']  = 0.0
-                if state['seg_idx'] < len(path):
-                    state['entity'].position = self.hub_positions[path[state['seg_idx']]]
-            else:
-                state['entity'].position = lerp(start, end, state['progress'])
-                direction = (end - start).normalized()
-                if direction.length() > 0:
-                    state['entity'].look_at(state['entity'].position + direction)
+        if all_stopped:
+            self.is_moving = False
 
     def generat_connections(self, connections):
         for zone1, zone2 in connections:
@@ -244,7 +194,7 @@ if __name__ == "__main__":
     graph.generate_drone(parse.nb_drones)
     graph.generat_connections(parse.connections)
     result = algo.path_for_drone()
-    graph.assign_paths_from_data(result, speed=2.5)
+    graph.assign_paths_from_data(result, speed=3.5)
     for l in result:
             if len(l['path']) > max_len:
                 max_len = len(l['path'])
@@ -253,4 +203,5 @@ if __name__ == "__main__":
             if len(res['path']) > i:
                 print(f"{res['id']}-{res['path'][i]}", end=' ')
         print()
+        print(i)
     graph.run()
