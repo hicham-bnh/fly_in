@@ -3,6 +3,7 @@ from typing import List
 from collections import deque
 from typing import Dict, Any
 
+
 class BFS:
     def __init__(self, file) -> None:
         self.parser = Parsing(file)
@@ -12,7 +13,6 @@ class BFS:
         self.adj = {}
         self.arrived = 0
         self.old = None
-
 
     def parse_file(self) -> None:
         self.start = self.parser.start

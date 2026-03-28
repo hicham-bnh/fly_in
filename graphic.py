@@ -1,11 +1,12 @@
-from ursina import *
-from parsing import Parsing
+from ursina import Text, Ursina, color, Vec3, Sky
+from ursina import EditorCamera, Entity, Mesh, time
+from ursina import DirectionalLight, lerp
 from ursina.prefabs.first_person_controller import FirstPersonController
 from typing import Any
 
 
 class Graphic:
-    def __init__(self, position, all_pos):
+    def __init__(self, position, all_pos) -> None:
         self.app = Ursina(title="fly-in")
         self.generate_world()
         self.player = FirstPersonController(
@@ -39,8 +40,7 @@ class Graphic:
         instance_handler.input = self.input
         self.current_turn = 0
 
-
-    def input(self, key):
+    def input(self, key) -> None:
         if key == 'space' and not self.is_moving:
             self.current_turn += 1
             self.is_moving = True
@@ -64,7 +64,7 @@ class Graphic:
         updater.update = self._update_drones
         self.app.run()
 
-    def generate_map(self) -> None:
+    def generate_map(self):
         for a, b, col_data in self.position:
             if col_data == "purple":
                 col_data = "violet"
@@ -72,17 +72,6 @@ class Graphic:
                 col_data = "brown"
             if col_data in ("darkred", "crimson"):
                 col_data = "brown"
-
-    def run(self):
-        updater = Entity()
-        updater.update = self._update_drones
-        self.app.run()
-        
-    def generate_map(self):
-        for a, b, col_data in self.position:
-            if col_data == "purple":    col_data = "violet"
-            if col_data == "maroon":    col_data = "brown"
-            if col_data in ("darkred", "crimson"): col_data = "brown"
             clean_color = col_data
             if isinstance(col_data, str):
                 clean_color = col_data.replace('[color=', '').replace(']', '')
@@ -94,7 +83,8 @@ class Graphic:
                 x=a * 2.5,
                 z=b * 2.5,
                 collider='box',
-                color=getattr(color, clean_color) if hasattr(color, clean_color) else color.white
+                color=getattr(color, clean_color)
+                        if hasattr(color, clean_color) else color.white
             )
 
     def generate_hub_labels(self):
@@ -120,90 +110,6 @@ class Graphic:
     def assign_paths_from_data(self, drone_data, speed=5.0):
         colors = [color.red, color.blue, color.orange, color.cyan,
                   color.magenta, color.lime, color.white, color.pink]
-
-        for i, drone_info in enumerate(drone_data):
-            drone_id = drone_info['id']
-            # On garde le path EXACTEMENT comme l'algo le donne (avec les répétitions)
-            path = drone_info['path'] 
-
-            if not path:
-                continue
-
-            start_pos = self.hub_positions[path[0]]
-            drone_entity = Entity(
-                model='sphere',
-                color=colors[i % len(colors)],
-                scale=Vec3(0.5, 0.5, 0.5),
-                position=start_pos
-            )
-            
-            # Label pour voir l'ID du drone
-            Text(text=drone_id, scale=6, billboard=True, parent=drone_entity, y=1.4, color=drone_entity.color)
-
-            self.drone_entities[drone_id] = drone_entity
-            self.drone_states[drone_id] = {
-                'entity':   drone_entity,
-                'path':     path,
-                'slot':     i
-            }
-      
-
-    def _update_drones(self):
-        if not self.is_moving:
-            return
-
-        all_stopped = True
-        
-        for drone_id, state in self.drone_states.items():
-            path = state['path']
-        
-            idx = min(self.current_turn, len(path) - 1)
-            target_name = path[idx]
-        
-            s = state['slot']
-            offset = Vec3(0, 0,0)
-            target_pos = self.hub_positions[target_name] + offset
-
-            dist = (target_pos - state['entity'].position).length()
-
-            if dist > 0.05:
-                all_stopped = False
-                state['entity'].position = lerp(state['entity'].position, target_pos, 15 * time.dt)
-            else:
-                state['entity'].position = target_pos
-
-        if all_stopped:
-            self.is_moving = False
-
-    def generat_connections(self, connections):
-        for zone1, zone2 in connections:
-            name1 = zone1['name']
-            name2 = zone2['name']
-            if name1 in self.hub_positions and name2 in self.hub_positions:
-                Entity(
-                    model=Mesh(
-                        vertices=(self.hub_positions[name1], self.hub_positions[name2]),
-                        mode='line',
-                        thickness=3
-                    ),
-                    color=color.white,
-                    y=-3
-                )
-
-    def generate_drone(self, nb_drones: Any) -> None:
-        for i in range(nb_drones):
-            drone = Entity(
-                model='sphere',
-                color=color.black,
-                scale=Vec3(0.5, 0.5, 0.5),
-                position=Vec3(0, 3, 0)
-            )
-            self.drones.append(drone)
-
-    def assign_paths_from_data(self, drone_data: Any, speed: float = 5.0) -> None:
-        colors = [color.red, color.blue, color.orange, color.cyan,
-                  color.magenta, color.lime, color.white, color.pink]
-
         for i, drone_info in enumerate(drone_data):
             drone_id = drone_info['id']
             path = drone_info['path']
@@ -226,12 +132,12 @@ class Graphic:
             )
             self.drone_entities[drone_id] = drone_entity
             self.drone_states[drone_id] = {
-                'entity': drone_entity,
-                'path': path,
-                'slot': i
+                'entity':   drone_entity,
+                'path':     path,
+                'slot':     i
             }
 
-    def _update_drones(self) -> None:
+    def _update_drones(self):
         if not self.is_moving:
             return
         all_stopped = True
@@ -245,14 +151,15 @@ class Graphic:
             if dist > 0.05:
                 all_stopped = False
                 state['entity'].position = lerp(
-                    state['entity'].position, target_pos, 15 * time.dt
-                    )
+                    state['entity'].position,
+                    target_pos, 15 * time.dt
+                )
             else:
                 state['entity'].position = target_pos
         if all_stopped:
             self.is_moving = False
 
-    def generat_connections(self, connections: Any) -> None:
+    def generat_connections(self, connections):
         for zone1, zone2 in connections:
             name1 = zone1['name']
             name2 = zone2['name']
@@ -262,7 +169,7 @@ class Graphic:
                         vertices=(
                             self.hub_positions[name1],
                             self.hub_positions[name2]
-                            ),
+                        ),
                         mode='line',
                         thickness=3
                     ),
