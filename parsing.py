@@ -5,8 +5,7 @@ import sys
 
 
 class Parsing:
-
-    def __init__(self) -> None:
+    def __init__(self, file) -> None:
         self.data: List[str] = []
         self.all_line: List[str] = []
         self.nb_drones: int = 0
@@ -21,13 +20,13 @@ class Parsing:
         self.is_link = 0
         self.nmbr_link = 0
         self.link_capacity = []
-        self.read_file(sys.argv[len(sys.argv) - 1])
+        self.read_file(file)
         self.check_line()
         self.parse()
         self.check_start_end()
-        self.file = sys.argv[len(sys.argv) - 1]
+        self.file = file
 
-    def read_file(self, file: str) -> None:
+    def read_file(self, file) -> None:
         with open(file, "r") as fd:
             self.data = fd.readlines()
 

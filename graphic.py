@@ -1,77 +1,13 @@
-from ursina import Ursina, color, Vec3, sys, BoxCollider, EditorCamera, Mesh, DirectionalLight, Sky # type: ignore
-from ursina.prefabs.first_person_controller import FirstPersonController # type: ignore
-from ursina.shaders import lit_with_shadows_shader # type: ignore
+from ursina import *
 from parsing import Parsing
-from ursina import Entity, distance, time
-import random
-from algo_test import BFS
+from ursina.prefabs.first_person_controller import FirstPersonController
+from algo import BFS
 
 
-class DroneDecor(Entity):
-    def __init__(self, name, path_names, hub_positions, hub_occupancy):
-        print(path_names)
-        print(hub_positions)
-        super().__init__(
-            model='sphere',
-            color=color.black,
-            scale=Vec3(0.5, 0.5, 0.5),
-            position=hub_positions[path_names[0]] + Vec3(0, 3, 0)
-        )
-        self.name = name
-        self.start_y = self.y
-        self.path_names = path_names
-        self.hub_positions = hub_positions
-        self.hub_occupancy = hub_occupancy
-        self.current_step = 0
-        self.speed = 3
-        self.timer = 0
-        self.delay = 5.0
-        
-
-    def update(self):
-        if self.current_step < len(self.path_names):
-            target_hub = self.path_names[self.current_step]
-            target_pos = self.hub_positions[target_hub] + Vec3(0, 3, 0)
-            occupant = self.hub_occupancy.get(target_hub)
-            if occupant is not None and occupant != self.name:
-                return
-            dist = distance(self.position, target_pos)
-            if dist > 0.1:
-                direction = (target_pos - self.position).normalized()
-                self.position += direction * self.speed * time.dt
-            else:
-                if self.current_step > 0:
-                    prev_hub = self.path_names[self.current_step - 1]
-                    if self.hub_occupancy.get(prev_hub) == self.name:
-                        self.hub_occupancy[prev_hub] = None
-                
-                self.hub_occupancy[target_hub] = self.name
-                self.position = target_pos
-                self.current_step += 1
-
-
-class DroneSimulation:
-    def __init__(self):
+class Graphic:
+    def __init__(self, position, all_pos):
         self.app = Ursina(title="fly-in")
-        random.seed(0)
-        Entity.default_shader = lit_with_shadows_shader
-        self.parser = Parsing()
-        self.algo = BFS()
-        self.parser.read_file(sys.argv[len(sys.argv) - 1])
-        self.parser.check_line()
-        self.parser.parse()
-        self.algo.parse_file(sys.argv[len(sys.argv) - 1])
-        self.algo.path_for_drone()
-        self.drones_entities = []
-        nb_drone = self.parser.nb_drones
-        self.hub_positions = {
-            zone['name']: Vec3(zone['x'] * 2.5, 0.1, zone['y'] * 2.5)
-            for zone in self.parser.zones
-        }
-        self.hub_occupancy = {name: None for name in self.hub_positions}
-        self.create_world()
-        self.generate_map(self.parser.pos)
-        self.generate_network_lines()
+        self.generate_world()
         self.player = FirstPersonController(
             z=-0.1,
             origin_y=1,
@@ -79,42 +15,40 @@ class DroneSimulation:
             gravity=0,
             y=4
         )
-        self.player.collider = BoxCollider(
-            self.player, Vec3(0, 1, 0), Vec3(1, 2, 1)
-        )
-        self.editor_camera = EditorCamera(enabled=False, ignore_paused=True)
-        algo_path = self.algo.path_for_drone()
-        for drone_info in algo_path:
-            # drone_info est {'id': 'drone_1', 'path': ['start', ...], 'visited': [...]}
-            d_name = drone_info['id']
-            d_path = drone_info['path']
-            
-            new_drone = DroneDecor(
-                name=d_name, 
-                path_names=d_path, 
-                hub_positions=self.hub_positions,
-                hub_occupancy=self.hub_occupancy
-            )
-            self.drones_entities.append(new_drone)
+        self.camera = EditorCamera(enabled=False, ignore_paused=True)
+        self.camera.y = 5
+        self.drones = []
+        self.drone_entities = {}
+        self.all_pos = all_pos
+        self.position = position
+        self.hub_positions = {
+            zone['name']: Vec3(zone['x'] * 2.5, 3, zone['y'] * 2.5)
+            for zone in self.all_pos
+        }
+        self.drone_states = {}
+        self.hub_positions = {
+            zone['name']: Vec3(zone['x'] * 2.5, 3, zone['y'] * 2.5)
+            for zone in self.all_pos
+        }
+        self.hub_capacity = {
+            zone['name']: zone['capacity']
+            for zone in self.all_pos
+        }
+        self.is_moving = False
+        instance_handler = Entity()
+        instance_handler.input = self.input # On lie le clavier
+        self.current_turn = 0
 
-    def generate_network_lines(self):
-        all_vertices = []
-        for zone1_dict, zone2_dict in self.parser.connections:
-            name1 = zone1_dict['name']
-            name2 = zone2_dict['name']
-            if name1 in self.hub_positions and name2 in self.hub_positions:
-                all_vertices.append(self.hub_positions[name1])
-                all_vertices.append(self.hub_positions[name2])
-        if all_vertices:
-            self.network = Entity(
-                model=Mesh(vertices=all_vertices, mode='line', thickness=3),
-                color=color.white,
-                z=-0.01
-            )
+    def input(self, key):
+        if key == 'space' and not self.is_moving:
+            self.current_turn += 1
+            self.is_moving = True
+        if key == 'escape':
+            quit()
 
-    def create_world(self):
+    def generate_world(self):
         self.ground = Entity(
-            model='plane',
+            model="plane",
             collider='box',
             scale=Vec3(110),
             texture='grass',
@@ -124,20 +58,20 @@ class DroneSimulation:
         self.sun.look_at(Vec3(1, -1, -1))
         Sky()
 
-    def generate_map(self, positions):
-        self.obstacles_parent = Entity()
-        for a, b, col_data in positions:
-            if col_data == "purple":
-                col_data = "violet"
-            if col_data == "maroon":
-                col_data = "brown"
-            if col_data == "darkred" or col_data == "crimson":
-                col_data = "brown"
+    def run(self):
+        updater = Entity()
+        updater.update = self._update_drones
+        self.app.run()
+        
+    def generate_map(self):
+        for a, b, col_data in self.position:
+            if col_data == "purple":    col_data = "violet"
+            if col_data == "maroon":    col_data = "brown"
+            if col_data in ("darkred", "crimson"): col_data = "brown"
             clean_color = col_data
             if isinstance(col_data, str):
                 clean_color = col_data.replace('[color=', '').replace(']', '')
             Entity(
-                parent=self.obstacles_parent,
                 model='cube',
                 origin_y=-0.5,
                 scale=Vec3(0.5, 0.5, 0.5),
@@ -145,20 +79,129 @@ class DroneSimulation:
                 x=a * 2.5,
                 z=b * 2.5,
                 collider='box',
-                color=getattr(color, clean_color)
-                        if hasattr(color, clean_color) else color.white
+                color=getattr(color, clean_color) if hasattr(color, clean_color) else color.white
             )
 
-    def run(self):
-        self.app.run()
+    def generate_hub_labels(self):
+        for name, pos in self.hub_positions.items():
+            Text(
+                text=name,
+                position=Vec3(pos.x, pos.y + 1.0, pos.z),
+                scale=8,
+                billboard=True,
+                color=color.yellow
+            )
+
+    def generate_drone(self, nb_drones):
+        for i in range(nb_drones):
+            drone = Entity(
+                model='sphere',
+                color=color.black,
+                scale=Vec3(0.5, 0.5, 0.5),
+                position=Vec3(0, 3, 0)
+            )
+            self.drones.append(drone)
+
+    def assign_paths_from_data(self, drone_data, speed=5.0):
+        colors = [color.red, color.blue, color.orange, color.cyan,
+                  color.magenta, color.lime, color.white, color.pink]
+
+        for i, drone_info in enumerate(drone_data):
+            drone_id = drone_info['id']
+            # On garde le path EXACTEMENT comme l'algo le donne (avec les répétitions)
+            path = drone_info['path'] 
+
+            if not path:
+                continue
+
+            start_pos = self.hub_positions[path[0]]
+            drone_entity = Entity(
+                model='sphere',
+                color=colors[i % len(colors)],
+                scale=Vec3(0.5, 0.5, 0.5),
+                position=start_pos
+            )
+            
+            # Label pour voir l'ID du drone
+            Text(text=drone_id, scale=6, billboard=True, parent=drone_entity, y=1.4, color=drone_entity.color)
+
+            self.drone_entities[drone_id] = drone_entity
+            self.drone_states[drone_id] = {
+                'entity':   drone_entity,
+                'path':     path, # On utilise le path complet
+                'slot':     i
+            }
+      
+
+    def _update_drones(self):
+        if not self.is_moving:
+            return
+
+        all_stopped = True
+        
+        for drone_id, state in self.drone_states.items():
+            path = state['path']
+            
+            # On prend l'index du tour actuel
+            # Si le tour est plus grand que le chemin, on reste sur la dernière position
+            idx = min(self.current_turn, len(path) - 1)
+            target_name = path[idx]
+            
+            # Calcul du décalage (slot) pour voir les 25 drones
+            s = state['slot']
+            offset = Vec3(0, 0,0)
+            target_pos = self.hub_positions[target_name] + offset
+
+            # Calcul de la distance
+            dist = (target_pos - state['entity'].position).length()
+
+            if dist > 0.05:
+                all_stopped = False
+                # Mouvement vers SA cible de CE tour
+                state['entity'].position = lerp(state['entity'].position, target_pos, 15 * time.dt)
+            else:
+                state['entity'].position = target_pos
+
+        if all_stopped:
+            self.is_moving = False
+
+    def generat_connections(self, connections):
+        for zone1, zone2 in connections:
+            name1 = zone1['name']
+            name2 = zone2['name']
+            if name1 in self.hub_positions and name2 in self.hub_positions:
+                Entity(
+                    model=Mesh(
+                        vertices=(self.hub_positions[name1], self.hub_positions[name2]),
+                        mode='line',
+                        thickness=3
+                    ),
+                    color=color.white,
+                    y=-3
+                )
 
 
-def input(key):
-    if key == 'escape':
-        quit()
-
-
-
-if __name__ == '__main__':
-    sim = DroneSimulation()
-    sim.run()
+if __name__ == "__main__":
+    parse = Parsing()
+    algo = BFS()
+    graph = Graphic(parse.pos, parse.zones)
+    max_len = 0
+    algo.parse_file()
+    algo.build_adj()
+    graph.generate_world()
+    graph.generate_map()
+    graph.generate_hub_labels()
+    graph.generate_drone(parse.nb_drones)
+    graph.generat_connections(parse.connections)
+    result = algo.path_for_drone()
+    graph.assign_paths_from_data(result, speed=3.5)
+    for l in result:
+            if len(l['path']) > max_len:
+                max_len = len(l['path'])
+    for i in range(1, max_len):
+        for res in result:
+            if len(res['path']) > i:
+                print(f"{res['id']}-{res['path'][i]}", end=' ')
+        print()
+        print(i)
+    graph.run()
