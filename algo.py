@@ -13,6 +13,7 @@ class BFS:
         self.adj: Dict[Any, Any] = {}
         self.arrived = 0
         self.old = None
+        self.positions: Dict = {z['name']: z for z in self.hub}
 
     def parse_file(self) -> None:
         self.start = self.parser.start
@@ -59,16 +60,15 @@ class BFS:
         return float('inf')
 
     def get_path(self, drone: Any) -> None:
-        positions = {z['name']: z for z in self.hub}
         goal = self.parser.end[0][0]
-        positions[self.parser.end[0][0]]['capacity'] = self.parser.nb_drones
+        self.positions[self.parser.end[0][0]]['capacity'] = self.parser.nb_drones
         current_pos = drone['path'][-1]
         if current_pos == self.parser.end[0][0]:
             return
         voisins = self.adj[current_pos]
         candidates = []
         for name in voisins:
-            obj = positions[name]
+            obj = self.positions[name]
             if obj['zone'] == 'blocked' or 'dead' in name:
                 continue
             if obj['capacity'] == obj['drone'] and name != goal:
@@ -97,8 +97,8 @@ class BFS:
             x['dist'], x['zone_priority'], x['name'])
         )
         best_path = candidates[0]['name']
-        positions[current_pos]['drone'] -= 1
-        positions[best_path]['drone'] += 1
+        self.positions[current_pos]['drone'] -= 1
+        self.positions[best_path]['drone'] += 1
         drone['visited'].append(best_path)
         drone['path'].append(best_path)
         if best_path == goal:
