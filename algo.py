@@ -13,13 +13,13 @@ class BFS:
         self.adj: Dict[Any, Any] = {}
         self.arrived = 0
         self.old = None
-        self.positions: Dict = {z['name']: z for z in self.hub}
 
     def parse_file(self) -> None:
         self.start = self.parser.start
         self.end = self.parser.end
         self.connection = self.parser.connections
         self.hub = self.parser.zones
+        self.positions: Dict = {z['name']: z for z in self.hub}
         self.adj = self.build_adj()
 
     def build_adj(self) -> Dict[Any, Any]:
