@@ -31,14 +31,14 @@ class BFS:
             adj[name1].append(name2)
         return adj
 
-    def is_path_to_goal(self, start_node: str, goal_node: str) -> bool:
+    def is_path_to_goal(self, start_node: str, goal_node: str) -> float | int:
         ordre_zones = {"priority": 0, "normal": 1, "restricted": 2}
-        queue = deque([start_node])
+        queue = deque([(start_node, 0)])
         visited = {start_node}
         while queue:
-            curr = queue.popleft()
+            curr, dist = queue.popleft()
             if curr == goal_node:
-                return True
+                return dist
             voisins_valide = []
             for neighbor in self.adj.get(curr, []):
                 if neighbor in visited or 'dead' in neighbor:
@@ -55,54 +55,54 @@ class BFS:
             for neighbor_obj in voisins_trie:
                 name = neighbor_obj['name']
                 visited.add(name)
-                queue.append(name)
-        return False
+                queue.append((name, dist + 1))
+        return float('inf')
 
     def get_path(self, drone: Any) -> None:
         positions = {z['name']: z for z in self.hub}
+        goal = self.parser.end[0][0]
         positions[self.parser.end[0][0]]['capacity'] = self.parser.nb_drones
-        ordre_zones = {"priority": 0, "normal": 1, "restricted": 2}
         current_pos = drone['path'][-1]
         if current_pos == self.parser.end[0][0]:
             return
         voisins = self.adj[current_pos]
-        maybe: deque[Any] = deque()
-        for voisin in voisins:
-            current_voisin = next(filter(
-                lambda x: x['name'] == voisin, self.hub)
-                )
-            if current_voisin['zone'] == "blocked" or\
-                    "dead" in current_voisin['name']:
+        candidates = []
+        for name in voisins:
+            obj = positions[name]
+            if obj['zone'] == 'blocked' or 'dead' in name:
                 continue
-            else:
-                maybe.append(current_voisin)
-        voisins_final = deque(sorted(
-            maybe,
-            key=lambda x: (ordre_zones.get(x['zone'], 3), x['name'])
-        ))
-        queu = deque(node['name'] for node in voisins_final)
-        while queu:
-            pos = queu.popleft()
-            if pos == self.parser.end[0][0] and pos in drone['visited']:
-                break
-            if positions[pos]['capacity'] == positions[pos]['drone']:
+            if obj['capacity'] == obj['drone'] and name != goal:
                 continue
-            if pos in drone['visited']:
+            if obj['name'] in drone['visited']:
                 continue
-            if self.is_path_to_goal(pos, self.parser.end[0][0]):
-                if positions[pos]['zone'] == "restricted":
-                    drone['path'].append(current_pos)
-                positions[pos]['drone'] += 1
-                drone['visited'].append(pos)
-                positions[current_pos]['drone'] -= 1
-                drone['path'].append(pos)
-                if pos == self.parser.end[0][0]:
-                    self.arrived += 1
-                return
-            break
-        drone['path'].append(current_pos)
-        if "challenger" not in self.parser.file:
+            dist = self.is_path_to_goal(name, goal)
+            if dist != float('inf'):
+                candidates.append({
+                    'name': name,
+                    'dist': dist,
+                    'zone_priority': {
+                            "priority": 0,
+                            "normal": 1,
+                            "restricted": 2
+                        }.get(obj['zone'], 3)
+                })
+        if not candidates:
+            drone['path'].append(current_pos)
+            if len(drone['path']) > 5 and all(
+                p == current_pos for p in drone['path'][-5:]
+            ):
+                drone['visited'] = []
             return
+        candidates.sort(key=lambda x: (
+            x['dist'], x['zone_priority'], x['name'])
+        )
+        best_path = candidates[0]['name']
+        positions[current_pos]['drone'] -= 1
+        positions[best_path]['drone'] += 1
+        drone['visited'].append(best_path)
+        drone['path'].append(best_path)
+        if best_path == goal:
+            self.arrived += 1
 
     def path_for_drone(self) -> List[Any]:
         drones = self.parser.drone_path
