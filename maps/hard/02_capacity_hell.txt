@@ -18,7 +18,7 @@ hub: final_bottleneck 8 0 [color=orange max_drones=3]
 end_hub: goal 9 0 [color=green max_drones=12]
 
 # Sequential gates (major bottleneck)
-connection: start-gate1 [max_link_capacity=0]
+connection: start-gate1 [max_link_capacity=1]
 connection: gate1-gate2 [max_link_capacity=1]
 connection: gate2-gate3 [max_link_capacity=1]
 
@@ -34,6 +34,7 @@ connection: gate3-restricted_tunnel1
 connection: restricted_tunnel1-restricted_tunnel2
 connection: restricted_tunnel2-restricted_tunnel3
 connection: restricted_tunnel3-convergence
+
 
 # Priority bypass (fast but limited capacity)
 connection: waiting_area1-priority_bypass1

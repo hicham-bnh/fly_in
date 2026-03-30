@@ -16,8 +16,9 @@ class Parsing:
         self.start: List[tuple[str, int, int]] = []
         self.end: List[tuple[str, int, int]] = []
         self.valide_name: List[str] = []
-        self.is_link = 0
-        self.nmbr_link = 0
+        self.is_link: int = 0
+        self.nmbr_link: int = 0
+        self.check_connections: set[Any] = set()
         self.link_capacity: List[Any] = []
         self.read_file(file)
         self.check_line()
@@ -145,13 +146,15 @@ class Parsing:
                 self.parse_connection(line)
 
     def parse_connection(self, line: str) -> None:
-        if "[max_link_capacity" in line and self.is_link < self.nmbr_link:
+        if "[max_link_capacity" in line:
             test = line.split(" ")[2]
             num = test.split('=')
-            result = str(num[1].split(']'))
+            result = str(num[1].split(']')[0])
             self.nmbr_link = int(result)
             if self.nmbr_link < 1:
                 raise ValueError("capacity link must be more than 0")
+            if self.is_link >= self.nmbr_link:
+                return
             left = line.split("[")[0]
             part = left.split()[1]
             zone1, zone2 = part.split("-")
@@ -166,7 +169,11 @@ class Parsing:
                     zone_b = i
             if zone_a is None or zone_b is None:
                 raise ValueError("name connection invalide")
+            check_conect = tuple(sorted((zone1, zone2)))
+            if check_conect in self.check_connections:
+                raise ValueError("connections is existed")
             self.connections.append((zone_a, zone_b))
+            self.check_connections.add(check_conect)
             self.is_link += 1
         else:
             left = line.split("[")[0]
@@ -184,7 +191,11 @@ class Parsing:
                     zone_b = i
             if zone_a is None or zone_b is None:
                 raise ValueError("name connection invalide")
+            check_conect = tuple(sorted((zone1, zone2)))
+            if check_conect in self.check_connections:
+                raise ValueError("connections is existed")
             self.connections.append((zone_a, zone_b))
+            self.check_connections.add(check_conect)
 
     def check_start_end(self) -> None:
         if self.start == [] or self.end == []:
