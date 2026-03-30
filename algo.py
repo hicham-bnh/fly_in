@@ -13,13 +13,15 @@ class BFS:
         self.adj: Dict[Any, Any] = {}
         self.arrived = 0
         self.old = None
+        self.nb_drone: int = 0
 
     def parse_file(self) -> None:
         self.start = self.parser.start
         self.end = self.parser.end
         self.connection = self.parser.connections
         self.hub = self.parser.zones
-        self.positions: Dict = {z['name']: z for z in self.hub}
+        self.nb_drone = self.parser.nb_drones
+        self.positions: Dict[Any, Any] = {z['name']: z for z in self.hub}
         self.adj = self.build_adj()
 
     def build_adj(self) -> Dict[Any, Any]:
@@ -61,7 +63,7 @@ class BFS:
 
     def get_path(self, drone: Any) -> None:
         goal = self.parser.end[0][0]
-        self.positions[self.parser.end[0][0]]['capacity'] = self.parser.nb_drones
+        self.positions[self.parser.end[0][0]]['capacity'] = self.nb_drone
         current_pos = drone['path'][-1]
         if current_pos == self.parser.end[0][0]:
             return
