@@ -1,6 +1,6 @@
-PYTHON := python3.12
+PYTHON := python3.13
 PIP := pip
-MAIN_SCRIPT := tchemin.py
+MAIN_SCRIPT := main.py
 PROJECT_NAME := fly_in
 VENV := .VENV
 REQUIREMENTS := requirements
