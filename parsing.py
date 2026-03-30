@@ -40,19 +40,21 @@ class Parsing:
 
     def parse_nb_drones(self, line: str) -> None:
         res = line.split(":")
-        self.nb_drones = int(res[1].strip())
+        clean_val = res[1].strip().replace(',', '.')
+        self.nb_drones = int(float(clean_val))
         if self.nb_drones < 1:
             raise ValueError("nb of drone can't be smaller than 1")
         for i in range(self.nb_drones):
             self.drone_path.append(
                 {
-                    "id": f"drone_{i+1}",
+                    "id": f"D{i+1}",
                     "path": ['start'],
                     "visited": []
                     }
                 )
 
     def parse_zone(self, line: str) -> None:
+        zone_type = ["normal", "restricted", "blocked", "priority"]
         parts = line.split()
         name = parts[1]
         if name in self.valide_name:
@@ -76,6 +78,8 @@ class Parsing:
                         color = value
                     if key == "zone":
                         zone_pars = value
+                        if zone_pars not in zone_type:
+                            raise ValueError("zone type invalide")
                     if key == "max_drones":
                         max_drone = int(value)
                         if max_drone < 1:
@@ -141,16 +145,16 @@ class Parsing:
                 self.parse_connection(line)
 
     def parse_connection(self, line: str) -> None:
-        if "max_link_capacity" in line and self.is_link < self.nmbr_link:
+        if "[max_link_capacity" in line and self.is_link < self.nmbr_link:
             test = line.split(" ")[2]
             num = test.split('=')
             result = str(num[1].split(']'))
             self.nmbr_link = int(result)
+            if self.nmbr_link < 1:
+                raise ValueError("capacity link must be more than 0")
             left = line.split("[")[0]
             part = left.split()[1]
             zone1, zone2 = part.split("-")
-            if int(result[0]) < 1:
-                raise ValueError("capacity link must be more than0")
             self.link_capacity.append((int(result[0]), zone2))
             self.is_link = True
             zone_a = None

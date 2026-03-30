@@ -75,6 +75,11 @@ class Graphic:
             clean_color = col_data
             if isinstance(col_data, str):
                 clean_color = col_data.replace('[color=', '').replace(']', '')
+            if hasattr(color, clean_color):
+                final_color = getattr(color, clean_color)
+            else:
+                print("color invalide we take the white ase default")
+                final_color = color.white
             Entity(
                 model='cube',
                 origin_y=-0.5,
@@ -83,8 +88,7 @@ class Graphic:
                 x=a * 2.5,
                 z=b * 2.5,
                 collider='box',
-                color=getattr(color, clean_color)
-                        if hasattr(color, clean_color) else color.white
+                color=final_color
             )
 
     def generate_hub_labels(self) -> None:

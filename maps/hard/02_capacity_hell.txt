@@ -18,7 +18,7 @@ hub: final_bottleneck 8 0 [color=orange max_drones=3]
 end_hub: goal 9 0 [color=green max_drones=12]
 
 # Sequential gates (major bottleneck)
-connection: start-gate1 [max_link_capacity=1]
+connection: start-gate1 [max_link_capacity=0]
 connection: gate1-gate2 [max_link_capacity=1]
 connection: gate2-gate3 [max_link_capacity=1]
 
