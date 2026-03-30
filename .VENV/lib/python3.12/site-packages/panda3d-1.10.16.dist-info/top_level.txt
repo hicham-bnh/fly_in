@@ -1,4 +1,0 @@
-direct
-panda3d
-pandac
-panda3d_tools

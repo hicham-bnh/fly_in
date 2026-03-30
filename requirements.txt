@@ -1,5 +1,3 @@
 ursina
 flake8
 mypy
-python3.12
-uv
