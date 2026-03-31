@@ -1,6 +1,4 @@
-from typing import List, Optional, Any
-from dataclasses import dataclass
-from enum import Enum
+from typing import List, Any
 
 
 class Parsing:
@@ -145,17 +143,19 @@ class Parsing:
                 self.parse_connection(line)
 
     def parse_connection(self, line: str) -> None:
-        if "[max_link_capacity" in line and self.is_link < self.nmbr_link:
+        if "[max_link_capacity" in line:
+            if self.is_link >= self.nmbr_link and self.nmbr_link != 0:
+                return
             test = line.split(" ")[2]
             num = test.split('=')
-            result = str(num[1].split(']'))
+            result = str(num[1].split(']')[0])
             self.nmbr_link = int(result)
             if self.nmbr_link < 1:
                 raise ValueError("capacity link must be more than 0")
             left = line.split("[")[0]
             part = left.split()[1]
             zone1, zone2 = part.split("-")
-            self.link_capacity.append((int(result[0]), zone2))
+            self.link_capacity.append((int(result), zone2))
             self.is_link = True
             zone_a = None
             zone_b = None
@@ -189,28 +189,3 @@ class Parsing:
     def check_start_end(self) -> None:
         if self.start == [] or self.end == []:
             raise ValueError("you must have start end goal")
-
-
-class ZoneType(Enum):
-    NORMAL = "normal"
-    BLOCKED = "blocked"
-    RESTRICTED = "restricted"
-    PRIORITY = "priority"
-
-
-@dataclass
-class Zone:
-    name: str
-    x: int
-    y: int
-    zone_type: ZoneType = ZoneType.NORMAL
-    color: Optional[str] = None
-    is_start: bool = False
-    is_end: bool = False
-
-
-@dataclass
-class Connection:
-    zone1: str
-    zone2: str
-    max_capacity: int = 1

@@ -99,6 +99,8 @@ class BFS:
             x['dist'], x['zone_priority'], x['name'])
         )
         best_path = candidates[0]['name']
+        if self.positions[best_path]['zone'] == 'restricted':
+            drone['path'].append(current_pos)
         self.positions[current_pos]['drone'] -= 1
         self.positions[best_path]['drone'] += 1
         drone['visited'].append(best_path)
