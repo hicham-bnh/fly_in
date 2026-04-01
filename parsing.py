@@ -1,6 +1,4 @@
-from typing import List, Optional, Any
-from dataclasses import dataclass
-from enum import Enum
+from typing import List, Any
 
 
 class Parsing:
@@ -200,28 +198,3 @@ class Parsing:
     def check_start_end(self) -> None:
         if self.start == [] or self.end == []:
             raise ValueError("you must have start end goal")
-
-
-class ZoneType(Enum):
-    NORMAL = "normal"
-    BLOCKED = "blocked"
-    RESTRICTED = "restricted"
-    PRIORITY = "priority"
-
-
-@dataclass
-class Zone:
-    name: str
-    x: int
-    y: int
-    zone_type: ZoneType = ZoneType.NORMAL
-    color: Optional[str] = None
-    is_start: bool = False
-    is_end: bool = False
-
-
-@dataclass
-class Connection:
-    zone1: str
-    zone2: str
-    max_capacity: int = 1

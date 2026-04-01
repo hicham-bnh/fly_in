@@ -6,12 +6,12 @@ import sys
 
 if __name__ == "__main__":
     try:
-        if (len(sys.argv) > 0):
+        if (len(sys.argv) > 1):
             file = sys.argv[len(sys.argv) - 1]
             parse: Parsing = Parsing(file)
         else:
             file = input("path to maps :")
-            parser = Parsing(file)
+            parse = Parsing(file)
         algo: BFS = BFS(file)
         graph: Graphic = Graphic(parse.pos, parse.zones)
         max_len: int = 0

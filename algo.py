@@ -42,7 +42,7 @@ class BFS:
             curr, dist = queue.popleft()
             if curr == goal_node:
                 return dist
-            voisins_valide = []
+            neighbor_valide = []
             for neighbor in self.adj.get(curr, []):
                 if neighbor in visited or 'dead' in neighbor:
                     continue
@@ -50,9 +50,9 @@ class BFS:
                     (z for z in self.hub if z['name'] == neighbor), None
                     )
                 if zone_obj and zone_obj['zone'] != 'blocked':
-                    voisins_valide.append(zone_obj)
+                    neighbor_valide.append(zone_obj)
             voisins_trie = sorted(
-                voisins_valide, key=lambda x: (
+                neighbor_valide, key=lambda x: (
                     ordre_zones.get(x['zone'], 3), x['name'])
                     )
             for neighbor_obj in voisins_trie:
@@ -67,9 +67,9 @@ class BFS:
         current_pos = drone['path'][-1]
         if current_pos == self.parser.end[0][0]:
             return
-        voisins = self.adj[current_pos]
+        neighbor = self.adj[current_pos]
         candidates = []
-        for name in voisins:
+        for name in neighbor:
             obj = self.positions[name]
             if obj['zone'] == 'blocked' or 'dead' in name:
                 continue
@@ -99,7 +99,11 @@ class BFS:
             x['dist'], x['zone_priority'], x['name'])
         )
         best_path = candidates[0]['name']
+<<<<<<< HEAD
         if self.positions[best_path]['zone'] == "restricted":
+=======
+        if self.positions[best_path]['zone'] == 'restricted':
+>>>>>>> 44fb2fd156acb122de86c652a8591184d3fbaad8
             drone['path'].append(current_pos)
         self.positions[current_pos]['drone'] -= 1
         self.positions[best_path]['drone'] += 1

@@ -43,14 +43,15 @@ fclean:
 	@rm -rf $(VENV) 2>/dev/null || true
 
 lint:
-	flake8 . --exclude=.git,.venv,venv,env,test_vm,build,dist,.mypy_cache,.pytest_cache,__pycache__,dependencies,src,*.egg-info
-	mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports \
+	$(PYTHON) -m flake8 . --exclude=.git,.VENV,venv,env,test_vm,build,dist,.mypy_cache,.pytest_cache,__pycache__,dependencies,src,*.egg-info
+	$(PYTHON) -m mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports \
 		--disallow-untyped-defs --check-untyped-defs --exclude='(build|dist|venv|env|dependencies|src)'
 
-lint-strict:
-	flake8 . --exclude=.git,.venv,venv,env,test_vm,build,dist,.mypy_cache,.pytest_cache,__pycache__,dependencies,src,*.egg-info
-	mypy . --strict --exclude='(build|dist|venv|env|dependencies|src)'
+PYTHON = python3.13
 
+lint-strict:
+	$(PYTHON) -m flake8 . --exclude=.git,.VENV,venv,env,test_vm,build,dist,.mypy_cache,.pytest_cache,__pycache__,dependencies,src,*.egg-info
+	$(PYTHON) -m mypy . --strict --ignore-missing-imports --exclude='(build|dist|venv|env|dependencies|src)'
 build: clean
 	$(PYTHON) -m pip install --update build setuptools wheel
 	$(PYTHON) -m build
