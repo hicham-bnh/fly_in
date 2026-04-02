@@ -11,7 +11,7 @@ class Graphic:
         self.generate_world()
         self.player = FirstPersonController(
             z=-0.1,
-            origin_y=1,
+            origin_y=4,
             speed=20,
             gravity=0,
             y=4

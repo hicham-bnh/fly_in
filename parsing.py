@@ -43,6 +43,8 @@ class Parsing:
         self.nb_drones = int(float(clean_val))
         if self.nb_drones < 1:
             raise ValueError("nb of drone can't be smaller than 1")
+        if self.nb_drones > 2147483648:
+            raise ValueError("int max depaced")
         for i in range(self.nb_drones):
             self.drone_path.append(
                 {
