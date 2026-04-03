@@ -94,7 +94,10 @@ class Parsing:
                 "color": color,
                 "zone": zone_pars,
                 "capacity": max_drone,
-                "drone": 0
+                "drone": 0,
+                "link": 1,
+                "link_use": 0,
+                "is_restricted": False
             }
             self.zones.append(zone)
         elif zone_pars is None and max_drone is not None:
@@ -105,7 +108,10 @@ class Parsing:
                 "color": color,
                 "zone": "normal",
                 "capacity": max_drone,
-                "drone": 0
+                "drone": 0,
+                "link": 1,
+                "link_use": 0,
+                "is_restricted": False
             }
             self.zones.append(zone)
         elif zone_pars is not None and max_drone is None:
@@ -116,7 +122,10 @@ class Parsing:
                 "color": color,
                 "zone": zone_pars,
                 "capacity": 1,
-                "drone": 0
+                "drone": 0,
+                "link": 1,
+                "link_use": 0,
+                "is_restricted": False
             }
             self.zones.append(zone)
         else:
@@ -127,7 +136,10 @@ class Parsing:
                 "color": color,
                 "zone": "normal",
                 "capacity": 1,
-                "drone": 0
+                "drone": 0,
+                "link": 1,
+                "link_use": 0,
+                "is_restricted": False
             }
             self.zones.append(zone)
             self.valide_name.append(name)
@@ -147,18 +159,15 @@ class Parsing:
 
     def parse_connection(self, line: str) -> None:
         if "[max_link_capacity" in line:
+            left = line.split("[")[0]
+            part = left.split()[1]
+            zone1, zone2 = part.split("-")
             test = line.split(" ")[2]
             num = test.split('=')
             result = str(num[1].split(']')[0])
             self.nmbr_link = int(result)
             if self.nmbr_link < 1:
                 raise ValueError("capacity link must be more than 0")
-            if self.is_link >= self.nmbr_link:
-                return
-            left = line.split("[")[0]
-            part = left.split()[1]
-            zone1, zone2 = part.split("-")
-            self.link_capacity.append((int(result[0]), zone2))
             self.is_link = True
             zone_a = None
             zone_b = None
@@ -167,6 +176,7 @@ class Parsing:
                     zone_a = i
                 if i['name'] == zone2:
                     zone_b = i
+                    i['link'] = self.nmbr_link
             if zone_a is None or zone_b is None:
                 raise ValueError("name connection invalide")
             check_conect = tuple(sorted((zone1, zone2)))
@@ -174,14 +184,10 @@ class Parsing:
                 raise ValueError("connections is existed")
             self.connections.append((zone_a, zone_b))
             self.check_connections.add(check_conect)
-            self.is_link += 1
         else:
             left = line.split("[")[0]
             part = left.split()[1]
             zone1, zone2 = part.split("-")
-            if self.is_link and self.link_capacity[0] is not zone2\
-                    and self.link_capacity[0][1][:-1] in zone2:
-                return
             zone_a = None
             zone_b = None
             for i in self.zones:

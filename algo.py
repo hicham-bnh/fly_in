@@ -101,8 +101,12 @@ class BFS:
         best_path = candidates[0]['name']
         if self.positions[best_path]['zone'] == 'restricted':
             drone['path'].append(current_pos)
+        if self.positions[best_path]['link'] == self.positions[best_path]['link_use']:
+            drone['path'].append(current_pos)
+            return
         self.positions[current_pos]['drone'] -= 1
         self.positions[best_path]['drone'] += 1
+        self.positions[best_path]['link_use'] += 1
         drone['visited'].append(best_path)
         drone['path'].append(best_path)
         if best_path == goal:
@@ -115,6 +119,8 @@ class BFS:
         while self.arrived < self.parser.nb_drones:
             if i_test == max_test:
                 raise ValueError("infinite loop ERROR")
+            for zone in self.positions:
+                self.positions[zone]['link_use'] = 0
             for drone in drones:
                 self.get_path(drone)
             i_test += 1
