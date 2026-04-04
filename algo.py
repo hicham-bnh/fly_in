@@ -101,7 +101,8 @@ class BFS:
         best_path = candidates[0]['name']
         if self.positions[best_path]['zone'] == 'restricted':
             drone['path'].append(current_pos)
-        if self.positions[best_path]['link'] == self.positions[best_path]['link_use']:
+        if self.positions[best_path]['link'] == \
+                self.positions[best_path]['link_use']:
             drone['path'].append(current_pos)
             return
         self.positions[current_pos]['drone'] -= 1
@@ -114,7 +115,7 @@ class BFS:
 
     def path_for_drone(self) -> List[Any]:
         drones = self.parser.drone_path
-        max_test = 500
+        max_test = 5000
         i_test = 0
         while self.arrived < self.parser.nb_drones:
             if i_test == max_test:

@@ -1,10 +1,9 @@
-PYTHON := python3.13
-PIP := pip
-MAIN_SCRIPT := main.py
-PROJECT_NAME := fly_in
-VENV := .VENV
-REQUIREMENTS := requirements
-FILE := 
+PYTHON = python3.13
+PIP = pip
+MAIN_SCRIPT = main.py
+PROJECT_NAME = fly_in
+VENV = .VENV
+REQUIREMENTS = requirements
 
 help:
 	@echo "Available commands:"
@@ -47,7 +46,6 @@ lint:
 	$(PYTHON) -m mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports \
 		--disallow-untyped-defs --check-untyped-defs --exclude='(build|dist|venv|env|dependencies|src)'
 
-PYTHON = python3.13
 
 lint-strict:
 	$(PYTHON) -m flake8 . --exclude=.git,.VENV,venv,env,test_vm,build,dist,.mypy_cache,.pytest_cache,__pycache__,dependencies,src,*.egg-info
