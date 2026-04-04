@@ -1,3 +1,16 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    algo.py                                            :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: mobenhab <mobenhab@student.42.fr>          +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2026/04/04 05:55:21 by mobenhab          #+#    #+#              #
+#    Updated: 2026/04/04 05:55:22 by mobenhab         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
+
 from parsing import Parsing
 from typing import List
 from collections import deque
